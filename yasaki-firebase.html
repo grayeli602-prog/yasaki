@@ -245,7 +245,10 @@
       <div class="hero-card declare" id="btnDeclare"><div class="big">DECLARE</div><div class="sub">start a hangout · pick the spot</div><div class="ic">🔥</div></div>
       <div class="hero-card join" id="btnJoinList"><div class="big">JOIN</div><div class="sub">pull up to whatever's live</div><div class="ic">🛹</div></div>
     </div>
-    <button id="btnCrew" class="btn btn-ghost">👥 see the whole crew</button>
+    <div style="display:flex;gap:10px;">
+      <button id="btnCrew" class="btn btn-ghost" style="flex:1;">👥 the crew</button>
+      <button id="btnShare" class="btn btn-purple" style="flex:1;">🔗 invite</button>
+    </div>
     <div class="section-label">live hangouts <span id="liveCount" style="color:var(--ink-faint)"></span></div>
     <div id="homeList"></div>
   </div>
@@ -270,6 +273,10 @@
   <div id="v-friends" class="view">
     <button class="back" data-home>← back</button>
     <div class="section-label">the crew <span id="crewCount" style="color:var(--ink-faint)"></span></div>
+    <div id="pendingWrap" style="display:none;">
+      <div class="section-label" style="margin-top:6px;">waiting to be approved</div>
+      <div id="pendingList"></div>
+    </div>
     <div id="crewList"></div>
   </div>
 
@@ -278,6 +285,7 @@
     <div class="section-label">declare a hangout</div>
     <div class="row-between"><span class="lab" style="margin:0;">the spot</span><button id="editSpotsBtn" class="btn btn-ghost btn-sm" style="padding:7px 13px;font-size:13px;">✏️ edit spots</button></div>
     <div class="spot-grid" id="spotGrid"></div>
+    <label class="fld"><span class="lab">date</span><input type="date" id="decDate"></label>
     <label class="fld"><span class="lab">start time</span><input type="time" id="decTime"></label>
     <div class="toggle-row"><span class="tt">i can pick people up 🚗</span><div class="switch" id="decDrive"><i></i></div></div>
     <button class="btn btn-orange" id="decGo" style="margin-top:24px;">declare it</button>
@@ -287,7 +295,7 @@
     <button class="back" data-home>← back</button>
     <div class="det-head">
       <div class="de" id="detEmoji">🛹</div>
-      <div style="flex:1;min-width:0;"><h2 id="detName">Spot</h2><div class="dm">starts <span class="t" id="detTime">—</span> · by <span id="detHost">—</span></div></div>
+      <div style="flex:1;min-width:0;"><h2 id="detName">Spot</h2><div class="dm"><span id="detDate"></span>starts <span class="t" id="detTime">—</span> · by <span id="detHost">—</span></div></div>
     </div>
     <div class="mycard" id="myCard">
       <div class="mh">your status</div>
@@ -311,6 +319,7 @@
         <div class="row-between" style="margin-top:16px;"><span class="lab" style="margin:0;">bringing</span><button id="editViceBtn" class="btn btn-ghost btn-sm" style="padding:6px 11px;font-size:12px;">＋ / edit</button></div>
         <div class="vice-row" id="viceRow"></div>
         <button class="btn btn-leave" id="leaveBtn" style="margin-top:14px;">leave hangout</button>
+        <button class="btn btn-leave" id="endBtn" style="margin-top:10px;display:none;border-color:var(--pink);color:var(--pink);">🗑️ end this hangout (host)</button>
         <div style="font-family:var(--fdisp);font-weight:600;font-size:12px;color:var(--ink-faint);margin-top:10px;">changes save automatically ✓</div>
       </div>
     </div>
@@ -373,6 +382,29 @@
   </div>
 </div>
 
+<div class="modal" id="roleModal">
+  <div class="sheet">
+    <h3 id="roleName">member</h3>
+    <div class="note" style="margin-bottom:6px;">set what this person can do.</div>
+    <div class="toggle-row"><span class="tt">🛡️ admin (approve, kick, ban)</span><div class="switch" id="roleAdmin"><i></i></div></div>
+    <button class="btn btn-leave" id="roleKick" style="margin-top:16px;">👢 kick from group</button>
+    <button class="btn btn-leave" id="roleBan" style="margin-top:10px;border-color:var(--pink);color:var(--pink);">🚫 ban from group</button>
+    <div style="display:flex;gap:10px;margin-top:18px;"><button class="btn btn-ghost" id="roleCancel">close</button><button class="btn btn-blue" id="roleSave">save role</button></div>
+  </div>
+</div>
+
+<div id="gateRemoved" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+  <div style="font-size:56px;">🚫</div>
+  <h2 style="font-family:var(--fdisp);font-weight:700;font-size:24px;margin:14px 0 8px;color:var(--ink);">you've been removed</h2>
+  <p style="color:var(--ink-dim);font-weight:600;font-size:15px;">an admin removed you from the Yasaki group. reach out to them if you think it's a mistake.</p>
+</div>
+
+<div id="gatePending" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+  <div style="font-size:56px;">⏳</div>
+  <h2 style="font-family:var(--fdisp);font-weight:700;font-size:24px;margin:14px 0 8px;color:var(--ink);">waiting for approval</h2>
+  <p style="color:var(--ink-dim);font-weight:600;font-size:15px;">an admin needs to let you into the group. you'll be in as soon as they approve you — check back in a bit.</p>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -410,7 +442,7 @@ function startApp(){
   const AVATAR_COLORS = ['#23c55e','#3b8dff','#ff5ea0','#ff8a39','#a06bff','#ffc23d','#2dd4bf'];
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
-  let ME=null, SPOTS=[], VICES=[], CURRENT=null, pendingPfp=null, decSel=null, spotEditMode=false, viceEditMode=false, editingSpot=null, pendingSpotLoc=null;
+  let ME=null, SPOTS=[], VICES=[], CURRENT=null, pendingPfp=null, decSel=null, spotEditMode=false, viceEditMode=false, editingSpot=null, pendingSpotLoc=null, roleTarget=null;
   let map=null, spotMarker=null, peopleMarkers={}, locWatch=null;
   let unsubHome=null, unsubAtt=null, unsubMedia=null, unsubHangout=null, unsubSpots=null, unsubChat=null, unsubVotes=null, unsubFeed=null, unsubVices=null;
   let prefs = JSON.parse(localStorage.getItem('yasaki_prefs')||'{"dark":false,"notif":true,"push":false}');
@@ -423,11 +455,20 @@ function startApp(){
   function avatarHTML(p, cls='avatar'){ if(p&&p.pfp) return `<img class="${cls}" src="${p.pfp}" alt="">`; const nm=p?p.name:'?'; return `<span class="${cls}" style="background:${colorFor(nm)}">${initials(nm)}</span>`; }
   function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
   function fmtTime(t){ if(!t) return ''; const [H,M]=t.split(':').map(Number); const ap=H>=12?'pm':'am'; const h=((H+11)%12)+1; return `${h}:${String(M).padStart(2,'0')}${ap}`; }
+  function fmtDate(ds){ if(!ds) return ''; const d=new Date(ds+'T00:00:00'); const today=new Date(); today.setHours(0,0,0,0); const diff=Math.round((d-today)/86400000); if(diff===0) return 'today'; if(diff===1) return 'tomorrow'; if(diff===-1) return 'yesterday'; return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}); }
   function roundedNow(){ const d=new Date(); d.setMinutes(Math.ceil(d.getMinutes()/15)*15); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
   function ago(t){ const s=(Date.now()-t)/1000; if(s<60)return 'just now'; if(s<3600)return Math.floor(s/60)+'m ago'; if(s<86400)return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
   function resizeImage(file,max,q){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{ let {width:w,height:h}=img; if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;} const c=document.createElement('canvas'); c.width=w;c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); res(c.toDataURL('image/jpeg',q)); }; img.onerror=rej; img.src=r.result; }; r.onerror=rej; r.readAsDataURL(file); }); }
   function dataURLToBlob(d){ const [hd,b]=d.split(','); const mime=hd.match(/:(.*?);/)[1]; const bin=atob(b); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return new Blob([u],{type:mime}); }
   function toggle(el){ el.onclick=()=>el.classList.toggle('on'); }
+  // names: letters (incl. accents), spaces, hyphens, apostrophes only — no digits/symbols/emoji
+  function cleanName(raw){
+    const n=(raw||'').trim().replace(/\s+/g,' ');
+    if(n.length<2) return {ok:false, msg:'name needs at least 2 letters'};
+    if(/[0-9]/.test(n)) return {ok:false, msg:'no numbers in names'};
+    if(!/^[\p{L} '\-]+$/u.test(n)) return {ok:false, msg:'letters only — no symbols or emoji'};
+    return {ok:true, name:n};
+  }
   function applyTheme(){ document.documentElement.setAttribute('data-theme', prefs.dark?'dark':'light'); }
   function savePrefs(){ localStorage.setItem('yasaki_prefs', JSON.stringify(prefs)); }
 
@@ -468,26 +509,47 @@ function startApp(){
   function enterApp(){
     $('onboarding').style.display='none'; $('app').style.display='block';
     renderMeChip(); setupMediaUI(); applyPrefUI();
-    showView('home'); listenHome(); listenFeed();
+    showView('home'); listenHome(); listenFeed(); watchMyStatus();
     if(prefs.push) requestPush(true);
   }
+  function watchMyStatus(){
+    onSnapshot(doc(db,'users',ME.id), d=>{
+      if(!d.exists()){ // removed entirely (kicked)
+        localStorage.removeItem('yasaki_me'); $('app').style.display='none'; $('gateRemoved').style.display='flex'; return;
+      }
+      const u=d.data();
+      ME.role=u.role||'member'; ME.status=u.status||'active';
+      localStorage.setItem('yasaki_me', JSON.stringify(ME));
+      if(u.status==='banned'){ $('app').style.display='none'; $('gatePending').style.display='none'; $('gateRemoved').style.display='flex'; return; }
+      if(u.status==='pending'){ $('app').style.display='none'; $('gateRemoved').style.display='none'; $('gatePending').style.display='flex'; return; }
+      // active
+      $('gateRemoved').style.display='none'; $('gatePending').style.display='none'; $('app').style.display='block';
+      $('settingsBtn').dataset.admin = (ME.role==='owner'||ME.role==='admin')?'1':'';
+    });
+  }
+  function isAdmin(){ return ME.role==='owner'||ME.role==='admin'; }
   function setupMediaUI(){ if(STORAGE_ENABLED) return; $('addMedia').style.display='none'; $('mediaGrid').innerHTML=''; const note=document.querySelectorAll('#v-detail .note'); if(note[note.length-1]) note[note.length-1].textContent='photos & videos are off for now — turn on Firebase Storage later.'; }
   function applyPrefUI(){ $('setDark').classList.toggle('on',prefs.dark); $('setNotif').classList.toggle('on',prefs.notif); $('setPush').classList.toggle('on',prefs.push); }
   function renderMeChip(){ $('meAv').outerHTML=avatarHTML(ME,'avatar'); $('meName').textContent=ME.name; }
   function showView(n){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $('v-'+n).classList.add('active'); window.scrollTo(0,0); }
 
-  function profileDoc(){ return {name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense}; }
+  function profileDoc(){ return {name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense,role:ME.role||'member',status:ME.status||'active'}; }
 
   function wireOnboarding(){
     $('onbPfp').onclick=()=>$('onbFile').click();
     $('onbFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const d=await resizeImage(f,220,.72); pendingPfp=d; $('onbPfp').style.background='transparent'; $('onbPfp').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`; };
-    $('onbName').oninput=e=>{ if(!pendingPfp){ const n=e.target.value; $('onbPfp').style.background=colorFor(n); $('onbPfp').textContent=initials(n); } };
+    $('onbName').oninput=e=>{ e.target.value=e.target.value.replace(/[^\p{L} '\-]/gu,''); if(!pendingPfp){ const n=e.target.value; $('onbPfp').style.background=colorFor(n); $('onbPfp').textContent=initials(n); } };
     ['onbCar','onbLic'].forEach(id=>toggle($(id)));
     $('onbGo').onclick=async ()=>{
-      const name=$('onbName').value.trim(); if(!name){ toast('drop your name first'); return; }
-      ME={ id:uid(), name, pfp:pendingPfp||null, hasCar:$('onbCar').classList.contains('on'), hasLicense:$('onbLic').classList.contains('on') };
+      const chk=cleanName($('onbName').value); if(!chk.ok){ toast(chk.msg); return; }
+      const name=chk.name;
+      // first account ever = owner & auto-approved; everyone else starts pending
+      let role='member', status='pending';
+      try{ const existing=await getDocs(collection(db,'users')); if(existing.empty){ role='owner'; status='active'; } }catch(e){ role='owner'; status='active'; }
+      ME={ id:uid(), name, pfp:pendingPfp||null, hasCar:$('onbCar').classList.contains('on'), hasLicense:$('onbLic').classList.contains('on'), role, status };
       localStorage.setItem('yasaki_me',JSON.stringify(ME));
       await setDoc(doc(db,'users',ME.id), profileDoc());
+      if(status==='pending'){ await pushFeed('⏳', `${ME.name} wants to join — an admin can approve them in the crew`); }
       enterApp();
     };
   }
@@ -525,27 +587,40 @@ function startApp(){
   function listenHome(){
     if(unsubHome) unsubHome();
     unsubHome = onSnapshot(collection(db,'hangouts'), async snap=>{
-      const items=[];
-      for(const d of snap.docs){ const h={id:d.id,...d.data()}; const a=await getDocs(collection(db,'hangouts',d.id,'attendees')); items.push({h,count:a.size}); }
+      const items=[]; const cutoff=new Date(); cutoff.setHours(0,0,0,0); cutoff.setDate(cutoff.getDate()-1);
+      for(const d of snap.docs){ const h={id:d.id,...d.data()}; if(h.date && new Date(h.date+'T00:00:00') < cutoff) continue; const a=await getDocs(collection(db,'hangouts',d.id,'attendees')); items.push({h,count:a.size}); }
       items.sort((a,b)=>(b.h.createdAt||0)-(a.h.createdAt||0));
       $('liveCount').textContent=items.length?`(${items.length})`:'';
       const wrap=$('homeList');
       if(!items.length){ wrap.innerHTML=`<div class="empty">nothing live right now.<br>be the one to <b style="color:var(--orange)">declare</b> something 🔥</div>`; return; }
-      wrap.innerHTML=items.map(({h,count})=>`<div class="hcard" data-open="${h.id}"><div class="spot-emoji">${h.emoji}</div><div class="hc-body"><div class="hc-title">${esc(h.name)}</div><div class="hc-meta"><span>starts <span class="t">${fmtTime(h.time)}</span></span><span>by ${esc(h.hostName)}</span></div></div><div class="count-pill">${count} 👥</div></div>`).join('');
+      wrap.innerHTML=items.map(({h,count})=>`<div class="hcard" data-open="${h.id}"><div class="spot-emoji">${h.emoji}</div><div class="hc-body"><div class="hc-title">${esc(h.name)}</div><div class="hc-meta"><span>${h.date?esc(fmtDate(h.date))+' ':''}<span class="t">${fmtTime(h.time)}</span></span><span>by ${esc(h.hostName)}</span></div></div><div class="count-pill">${count} 👥</div></div>`).join('');
     });
   }
 
+  function roleBadge(u){
+    if(u.role==='owner') return '<span class="badge" style="background:var(--yellow);color:#1c1c24;">👑 owner</span>';
+    if(u.role==='admin') return '<span class="badge" style="background:var(--purple);">🛡️ admin</span>';
+    return '';
+  }
   function openFriends(){
     showView('friends');
     $('crewList').innerHTML=`<div class="empty">loading…</div>`;
     getDocs(collection(db,'users')).then(snap=>{
-      const users=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-      $('crewCount').textContent=users.length?`(${users.length})`:'';
-      if(!users.length){ $('crewList').innerHTML=`<div class="empty">no accounts yet.</div>`; return; }
-      $('crewList').innerHTML=users.map(u=>{
+      const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const pending=all.filter(u=>u.status==='pending');
+      const active=all.filter(u=>u.status!=='pending'&&u.status!=='banned').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+      // pending section (admins only)
+      if(isAdmin() && pending.length){
+        $('pendingWrap').style.display='block';
+        $('pendingList').innerHTML=pending.map(u=>`<div class="att"><div class="ab"><div class="an">${esc(u.name)}</div></div><div style="display:flex;gap:6px;"><button class="btn btn-green btn-sm" data-approve="${u.id}">approve</button><button class="btn btn-leave btn-sm" data-deny="${u.id}">deny</button></div></div>`).join('');
+      } else $('pendingWrap').style.display='none';
+      $('crewCount').textContent=active.length?`(${active.length})`:'';
+      if(!active.length){ $('crewList').innerHTML=`<div class="empty">no one's in yet.</div>`; return; }
+      $('crewList').innerHTML=active.map(u=>{
         const isMe=u.id===ME.id;
         const mini=[u.hasCar?'🚗 car':'',u.hasLicense?'🪪 licensed':''].filter(Boolean).join(' · ');
-        return `<div class="att">${avatarHTML(u,'av avatar')}<div class="ab"><div class="an">${esc(u.name)}${isMe?'<span class="badge b-you">you</span>':''}</div>${mini?`<div class="am">${mini}</div>`:''}</div></div>`;
+        const manage = (isAdmin() && !isMe && u.role!=='owner') ? `<button class="btn btn-ghost btn-sm" data-manage="${u.id}" data-mname="${esc(u.name)}" data-mrole="${u.role||'member'}">manage</button>` : '';
+        return `<div class="att">${avatarHTML(u,'av avatar')}<div class="ab"><div class="an">${esc(u.name)}${isMe?'<span class="badge b-you">you</span>':''}${roleBadge(u)}</div>${mini?`<div class="am">${mini}</div>`:''}</div>${manage}</div>`;
       }).join('');
     }).catch(()=>{ $('crewList').innerHTML=`<div class="empty">couldn't load the crew.</div>`; });
   }
@@ -555,7 +630,7 @@ function startApp(){
     $('spotGrid').innerHTML = SPOTS.map(s=>`<div class="spot-pick ${decSel===s.id?'sel':''}" data-spot="${s.id}"><span class="em">${s.emoji}</span><span>${esc(s.name)}</span></div>`).join('')
       + (spotEditMode?'':`<div class="spot-pick spot-add" id="addSpotBtn"><span class="em">＋</span><span>new spot</span></div>`);
   }
-  function openDeclare(){ decSel=null; spotEditMode=false; $('editSpotsBtn').textContent='✏️ edit spots'; $('decTime').value=roundedNow(); $('decDrive').classList.remove('on'); renderSpotGrid(); showView('declare'); }
+  function openDeclare(){ decSel=null; spotEditMode=false; $('editSpotsBtn').textContent='✏️ edit spots'; const d=new Date(); $('decDate').value=d.toISOString().slice(0,10); $('decTime').value=roundedNow(); $('decDrive').classList.remove('on'); renderSpotGrid(); showView('declare'); }
 
   /* ---- vices (bring-items) ---- */
   function refreshViceRow(){
@@ -572,7 +647,8 @@ function startApp(){
     if(unsubHangout) unsubHangout();
     unsubHangout = onSnapshot(doc(db,'hangouts',id), d=>{
       if(!d.exists()){ toast('this hangout ended'); leaveDetail(); showView('home'); return; }
-      const h=d.data(); $('detEmoji').textContent=h.emoji; $('detName').textContent=h.name; $('detTime').textContent=fmtTime(h.time); $('detHost').textContent=h.hostName; $('v-detail').dataset.host=h.hostId; $('v-detail').dataset.spotid=h.spotId||'';
+      const h=d.data(); $('detEmoji').textContent=h.emoji; $('detName').textContent=h.name; $('detDate').textContent=h.date?fmtDate(h.date)+' · ':''; $('detTime').textContent=fmtTime(h.time); $('detHost').textContent=h.hostName; $('v-detail').dataset.host=h.hostId; $('v-detail').dataset.spotid=h.spotId||'';
+      $('endBtn').style.display = (h.hostId===ME.id || isAdmin()) ? 'block':'none';
       setupMap(h);
     });
     if(unsubAtt) unsubAtt();
@@ -716,6 +792,7 @@ function startApp(){
     });
   }
   async function startVote(kind, targetId, targetName){
+    if(!confirm(`Start a ${VOTE_HOURS}-hour vote to delete "${targetName}"? Everyone gets to vote.`)) return;
     const existing=await getDocs(collection(db,'votes'));
     if(existing.docs.some(d=>{const v=d.data();return v.kind===kind&&v.targetId===targetId&&!v.resolved;})){ toast('vote already running'); return; }
     const id=uid();
@@ -730,6 +807,11 @@ function startApp(){
     $('btnDeclare').onclick=openDeclare;
     $('btnJoinList').onclick=()=>{ showView('home'); toast('tap a live hangout to join'); };
     $('btnCrew').onclick=openFriends;
+    $('btnShare').onclick=async ()=>{
+      const url=location.href.split('#')[0];
+      try{ if(navigator.share){ await navigator.share({title:'Yasaki', text:'join our hangout app 🛹', url}); } else { await navigator.clipboard.writeText(url); toast('link copied 🔗'); } }
+      catch(e){ try{ await navigator.clipboard.writeText(url); toast('link copied 🔗'); }catch(_){ toast(url); } }
+    };
     $('bellBtn').onclick=openFeed;
     $('settingsBtn').onclick=()=>showView('settings');
     $('homeList').onclick=e=>{ const c=e.target.closest('[data-open]'); if(c) openHangout(c.dataset.open); };
@@ -753,10 +835,10 @@ function startApp(){
       if(!decSel){ toast('pick a spot'); return; }
       const spot=SPOTS.find(s=>s.id===decSel); const time=$('decTime').value;
       if(!time){ toast('set a start time'); return; }
-      const id=uid(); const drive=$('decDrive').classList.contains('on');
-      await setDoc(doc(db,'hangouts',id),{name:spot.name,emoji:spot.emoji,spotId:spot.id,lat:spot.lat||null,lng:spot.lng||null,time,hostId:ME.id,hostName:ME.name,createdAt:Date.now()});
+      const id=uid(); const drive=$('decDrive').classList.contains('on'); const date=$('decDate').value||new Date().toISOString().slice(0,10);
+      await setDoc(doc(db,'hangouts',id),{name:spot.name,emoji:spot.emoji,spotId:spot.id,lat:spot.lat||null,lng:spot.lng||null,time,date,hostId:ME.id,hostName:ME.name,createdAt:Date.now()});
       CURRENT=id; await saveMyAtt({arrive:time, driver:drive, needsRide:false});
-      await pushFeed('🔥', `${ME.name} declared a hangout at ${spot.name} (${fmtTime(time)})`);
+      await pushFeed('🔥', `${ME.name} declared a hangout at ${spot.name} (${fmtDate(date)} ${fmtTime(time)})`);
       toast('declared 🔥'); openHangout(id);
     };
 
@@ -766,11 +848,53 @@ function startApp(){
     $('myNeedRide').onclick=async ()=>{ const on=!$('myNeedRide').classList.contains('on'); $('myNeedRide').classList.toggle('on',on); await saveMyAtt({needsRide:on}); if(on) await pushFeed('🙋', `${ME.name} needs a ride to ${$('detName').textContent}`); toast(on?'ride requested 🙋':'request cancelled'); };
     $('myLoc').onclick=async ()=>{ const on=!$('myLoc').classList.contains('on'); $('myLoc').classList.toggle('on',on); if(on){ startSharingLoc(); toast('sharing location 📍'); } else { stopSharingLoc(); await saveMyAtt({lat:null,lng:null}); toast('stopped sharing'); } };
     $('leaveBtn').onclick=async ()=>{
+      if(!confirm('Leave this hangout?')) return;
       const hid=CURRENT;
       stopSharingLoc();
       await deleteDoc(doc(db,'hangouts',hid,'attendees',ME.id));
       try{ const rest=await getDocs(collection(db,'hangouts',hid,'attendees')); if(rest.empty){ await deleteDoc(doc(db,'hangouts',hid)); await pushFeed('💨', `the ${$('detName').textContent} hangout ended`); } }catch(e){}
       toast('you left'); leaveDetail(); showView('home');
+    };
+    $('endBtn').onclick=async ()=>{
+      if(!confirm('End this hangout for everyone? This deletes it.')) return;
+      const hid=CURRENT, nm=$('detName').textContent;
+      try{ const atts=await getDocs(collection(db,'hangouts',hid,'attendees')); for(const a of atts.docs){ await deleteDoc(a.ref); } }catch(e){}
+      await deleteDoc(doc(db,'hangouts',hid));
+      await pushFeed('🗑️', `${ME.name} ended the hangout at ${nm}`);
+      toast('hangout ended'); leaveDetail(); showView('home');
+    };
+    // crew: approve / deny / manage
+    $('pendingList').onclick=async e=>{
+      const ap=e.target.closest('[data-approve]'), dn=e.target.closest('[data-deny]');
+      if(ap){ await updateDoc(doc(db,'users',ap.dataset.approve),{status:'active'}); await pushFeed('✅','a new member was approved'); toast('approved'); openFriends(); }
+      if(dn){ if(!confirm('Deny and remove this person?')) return; await deleteDoc(doc(db,'users',dn.dataset.deny)); toast('denied'); openFriends(); }
+    };
+    $('crewList').onclick=e=>{
+      const m=e.target.closest('[data-manage]'); if(!m) return;
+      roleTarget={id:m.dataset.manage, name:m.dataset.mname, role:m.dataset.mrole};
+      $('roleName').textContent=roleTarget.name;
+      $('roleAdmin').classList.toggle('on', roleTarget.role==='admin');
+      $('roleModal').classList.add('open');
+    };
+    $('roleCancel').onclick=()=>$('roleModal').classList.remove('open');
+    $('roleAdmin').onclick=()=>$('roleAdmin').classList.toggle('on');
+    $('roleSave').onclick=async ()=>{
+      if(!roleTarget) return;
+      const newRole=$('roleAdmin').classList.contains('on')?'admin':'member';
+      await updateDoc(doc(db,'users',roleTarget.id),{role:newRole});
+      $('roleModal').classList.remove('open'); toast('role saved'); openFriends();
+    };
+    $('roleKick').onclick=async ()=>{
+      if(!roleTarget) return; if(!confirm(`Kick ${roleTarget.name} from the group?`)) return;
+      await deleteDoc(doc(db,'users',roleTarget.id));
+      await pushFeed('👢', `${roleTarget.name} was removed from the group`);
+      $('roleModal').classList.remove('open'); toast('kicked'); openFriends();
+    };
+    $('roleBan').onclick=async ()=>{
+      if(!roleTarget) return; if(!confirm(`Ban ${roleTarget.name}? They'll be locked out.`)) return;
+      await updateDoc(doc(db,'users',roleTarget.id),{status:'banned'});
+      await pushFeed('🚫', `${roleTarget.name} was banned`);
+      $('roleModal').classList.remove('open'); toast('banned'); openFriends();
     };
     $('ridesBox').onclick=async e=>{
       const b=e.target.closest('[data-grab]'); if(!b) return;
@@ -819,10 +943,12 @@ function startApp(){
     $('meChip').onclick=openProfile;
     $('editPfp').onclick=()=>$('editFile').click();
     $('editFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const d=await resizeImage(f,220,.72); pendingPfp=d; $('editPfp').style.background='transparent'; $('editPfp').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`; };
+    $('editName').oninput=e=>{ e.target.value=e.target.value.replace(/[^\p{L} '\-]/gu,''); };
     ['editCar','editLic'].forEach(id=>toggle($(id)));
     $('profCancel').onclick=()=>$('profModal').classList.remove('open');
     $('profSave').onclick=async ()=>{
-      ME.name=$('editName').value.trim()||ME.name; if(pendingPfp) ME.pfp=pendingPfp;
+      const chk=cleanName($('editName').value); if(!chk.ok){ toast(chk.msg); return; }
+      ME.name=chk.name; if(pendingPfp) ME.pfp=pendingPfp;
       ME.hasCar=$('editCar').classList.contains('on'); ME.hasLicense=$('editLic').classList.contains('on');
       localStorage.setItem('yasaki_me',JSON.stringify(ME)); await setDoc(doc(db,'users',ME.id), profileDoc());
       renderMeChip(); $('profModal').classList.remove('open'); toast('account updated');
