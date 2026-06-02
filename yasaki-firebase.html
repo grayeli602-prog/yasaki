@@ -1,0 +1,560 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Yasaki</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Yasaki">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23ffffff'/%3E%3Ctext x='90' y='118' font-size='84' font-family='Arial Black,Arial' font-weight='900' fill='%23ff5ea0' text-anchor='middle'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Yasaki%22%2C%22short_name%22%3A%22Yasaki%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23ffffff%22%2C%22start_url%22%3A%22.%22%7D">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#ffffff;--bg2:#f6f7f9;--card:#ffffff;--card2:#f3f4f7;--line:#e7e8ee;
+    --ink:#1c1c24;--ink-dim:#5f606c;--ink-faint:#a6a7b2;
+    --green:#23c55e;--blue:#3b8dff;--pink:#ff5ea0;--orange:#ff8a39;--purple:#a06bff;--yellow:#ffc23d;--teal:#2dd4bf;
+    --shadow:0 12px 32px rgba(25,25,55,.10);--radius:20px;
+    --fdisp:'Fredoka',sans-serif;--fbody:'Nunito',sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+  button,.hero-card,.hcard,.spot-pick,.vice,.switch,.me-chip,.chip-d b,.brand,.ride-row [data-grab]{
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--fbody);-webkit-text-size-adjust:100%;}
+  body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom);background:
+      radial-gradient(600px 380px at 92% -8%, rgba(255,94,160,.14), transparent 60%),
+      radial-gradient(560px 420px at -8% 8%, rgba(59,141,255,.12), transparent 60%),
+      radial-gradient(620px 460px at 50% 115%, rgba(35,197,94,.10), transparent 60%),var(--bg);}
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px 120px;}
+  .view{display:none;animation:rise .26s cubic-bezier(.2,.8,.2,1);}
+  .view.active{display:block;}
+  @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  @keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:none;opacity:1;}}
+  .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+    padding:calc(14px + env(safe-area-inset-top)) 0 12px;margin-bottom:6px;background:linear-gradient(var(--bg) 74%, transparent);}
+  .brand{display:flex;align-items:center;cursor:pointer;}
+  .brand .mark{font-family:var(--fdisp);font-weight:700;font-size:28px;letter-spacing:-.5px;line-height:1;}
+  .me-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+    padding:5px 12px 5px 5px;border-radius:999px;cursor:pointer;transition:transform .1s;box-shadow:var(--shadow);}
+  .me-chip:active{transform:scale(.94);}
+  .me-chip .nm{font-size:13px;font-weight:700;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;display:grid;place-items:center;
+    font-family:var(--fdisp);font-weight:700;font-size:13px;color:#fff;flex:none;}
+  .btn{width:100%;border:none;cursor:pointer;font-family:var(--fdisp);font-weight:600;border-radius:15px;
+    padding:16px;font-size:17px;transition:transform .08s ease,filter .12s;color:#fff;}
+  .btn:active{transform:scale(.96);filter:brightness(.95);}
+  .btn-orange{background:var(--orange);box-shadow:0 8px 20px rgba(255,138,57,.32);}
+  .btn-green{background:var(--green);box-shadow:0 8px 20px rgba(35,197,94,.30);}
+  .btn-blue{background:var(--blue);box-shadow:0 8px 20px rgba(59,141,255,.30);}
+  .btn-ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
+  .btn-sm{width:auto;padding:10px 16px;font-size:14px;border-radius:12px;}
+  .btn:disabled{opacity:.45;cursor:default;}
+  .hero-actions{display:grid;gap:12px;margin:8px 0 26px;}
+  .hero-card{position:relative;overflow:hidden;border-radius:var(--radius);padding:24px;cursor:pointer;transition:transform .1s;box-shadow:var(--shadow);}
+  .hero-card:active{transform:scale(.97);}
+  .hero-card .big{font-family:var(--fdisp);font-weight:700;font-size:28px;letter-spacing:-.5px;line-height:1;color:#fff;}
+  .hero-card .sub{font-family:var(--fbody);font-size:13px;font-weight:700;color:rgba(255,255,255,.85);margin-top:7px;}
+  .hero-card .ic{position:absolute;right:16px;bottom:-6px;font-size:74px;opacity:.28;}
+  .declare{background:linear-gradient(135deg,var(--orange),#ff6f3d);}
+  .join{background:linear-gradient(135deg,var(--green),#1fb86a);}
+  .section-label{font-family:var(--fdisp);font-size:13px;letter-spacing:.3px;color:var(--ink-dim);
+    font-weight:600;margin:26px 2px 12px;display:flex;align-items:center;gap:8px;}
+  .section-label::before{content:"";height:8px;width:8px;border-radius:50%;flex:none;background:var(--pink);}
+  .hcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px;
+    margin-bottom:11px;cursor:pointer;display:flex;align-items:center;gap:13px;transition:transform .1s;animation:pop .26s both;box-shadow:var(--shadow);}
+  .hcard:active{transform:scale(.98);}
+  .hcard .spot-emoji{font-size:30px;flex:none;width:50px;height:50px;border-radius:14px;background:var(--card2);display:grid;place-items:center;}
+  .hcard .hc-body{flex:1;min-width:0;}
+  .hcard .hc-title{font-family:var(--fdisp);font-weight:600;font-size:18px;letter-spacing:-.2px;}
+  .hcard .hc-meta{font-size:13px;font-weight:600;color:var(--ink-dim);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
+  .hcard .hc-meta .t{color:var(--blue);}
+  .count-pill{font-family:var(--fdisp);font-weight:600;font-size:13px;background:var(--card2);padding:6px 11px;border-radius:999px;color:var(--ink);flex:none;}
+  .empty{text-align:center;color:var(--ink-faint);font-size:15px;font-weight:600;padding:30px 10px;line-height:1.6;}
+  label.fld{display:block;margin:16px 0 0;}
+  label.fld .lab,.lab{font-family:var(--fdisp);font-size:13px;font-weight:600;color:var(--ink-dim);margin-bottom:7px;display:block;}
+  input[type=text],input[type=time],input[type=date]{width:100%;background:var(--card);border:1.5px solid var(--line);color:var(--ink);
+    padding:14px;border-radius:14px;font-family:var(--fbody);font-weight:600;font-size:16px;outline:none;transition:border-color .12s;}
+  input:focus{border-color:var(--blue);}
+  input::placeholder{color:var(--ink-faint);font-weight:600;}
+  .spot-grid{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px;}
+  .spot-pick{display:flex;align-items:center;gap:7px;background:var(--card);border:1.5px solid var(--line);
+    padding:11px 14px;border-radius:14px;cursor:pointer;font-size:15px;font-weight:700;transition:transform .08s,border-color .12s,background .12s;}
+  .spot-pick .em{font-size:18px;}
+  .spot-pick:active{transform:scale(.94);}
+  .spot-pick.sel{border-color:var(--blue);background:rgba(59,141,255,.1);color:var(--blue);}
+  .spot-add{border-style:dashed;color:var(--ink-dim);}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px;box-shadow:var(--shadow);}
+  .toggle-row .tt{font-size:15px;font-weight:700;}
+  .switch{width:50px;height:29px;border-radius:999px;background:var(--card2);border:1px solid var(--line);position:relative;cursor:pointer;flex:none;transition:background .15s,border-color .15s;}
+  .switch i{position:absolute;top:2.5px;left:2.5px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .15s;}
+  .switch.on{background:var(--green);border-color:var(--green);}
+  .switch.on i{left:23px;}
+  .vice-row{display:flex;gap:9px;margin-top:8px;}
+  .vice{flex:1;text-align:center;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:14px 6px;cursor:pointer;
+    font-family:var(--fdisp);font-weight:600;font-size:15px;color:var(--ink-faint);transition:transform .08s,background .12s,color .12s,border-color .12s;}
+  .vice:active{transform:scale(.93);}
+  .vice.on{color:#fff;}
+  .vice.nic.on{background:var(--orange);border-color:var(--orange);}
+  .vice.yart.on{background:var(--green);border-color:var(--green);}
+  .vice.alc.on{background:var(--pink);border-color:var(--pink);}
+  .att{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:10px;animation:pop .24s both;box-shadow:var(--shadow);}
+  .att .av{width:44px;height:44px;border-radius:12px;flex:none;}
+  .att .av.avatar{font-size:16px;border-radius:12px;}
+  .att .ab{flex:1;min-width:0;}
+  .att .an{font-weight:800;font-size:15px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .att .am{font-size:13px;font-weight:600;color:var(--ink-dim);margin-top:3px;}
+  .att .am .arr{color:var(--blue);font-weight:700;}
+  .att .am .mini{color:var(--ink-faint);}
+  .badge{font-family:var(--fdisp);font-size:11px;padding:3px 9px;border-radius:8px;font-weight:600;color:#fff;}
+  .b-you{background:var(--blue);}
+  .b-host{background:var(--orange);}
+  .b-drive{background:var(--green);}
+  .b-ride{background:var(--purple);}
+  .v-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+  .v-tag{font-family:var(--fdisp);font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px;color:#fff;}
+  .v-tag.nic{background:var(--orange);}
+  .v-tag.yart{background:var(--green);}
+  .v-tag.alc{background:var(--pink);}
+  .bringing{font-size:13px;font-weight:600;color:var(--ink-dim);margin-top:6px;}
+  .bringing b{color:var(--ink);font-weight:800;}
+  .ride-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:13px 14px;margin-bottom:9px;box-shadow:var(--shadow);animation:pop .24s both;}
+  .ride-row .rl{font-size:14px;font-weight:700;color:var(--ink);}
+  .ride-row .rl b{font-weight:800;}
+  .ride-row.done{background:rgba(35,197,94,.08);border-color:rgba(35,197,94,.3);}
+  .ride-row.done .rl{color:var(--ink-dim);}
+  .ride-wait{font-size:13px;font-weight:700;color:var(--purple);}
+  .det-head{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:6px;display:flex;gap:14px;align-items:center;box-shadow:var(--shadow);}
+  .det-head .de{font-size:42px;width:64px;height:64px;border-radius:18px;background:var(--card2);display:grid;place-items:center;flex:none;}
+  .det-head h2{font-family:var(--fdisp);font-weight:700;font-size:24px;margin:0;letter-spacing:-.3px;}
+  .det-head .dm{font-size:13px;font-weight:600;color:var(--ink-dim);margin-top:5px;}
+  .det-head .dm .t{color:var(--blue);font-weight:700;}
+  .mycard{background:linear-gradient(135deg,rgba(59,141,255,.08),var(--card));border:1.5px solid rgba(59,141,255,.3);border-radius:18px;padding:16px;margin:14px 0;box-shadow:var(--shadow);}
+  .mycard .mh{font-family:var(--fdisp);font-size:13px;font-weight:600;color:var(--blue);margin-bottom:4px;}
+  .chips-in{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+  .chip-d{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;}
+  .chip-d b{font-size:15px;cursor:pointer;color:var(--ink-faint);line-height:.7;}
+  .media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px;}
+  .media-grid .mthumb{position:relative;aspect-ratio:1;border-radius:13px;overflow:hidden;background:var(--card2);border:1px solid var(--line);}
+  .media-grid .mthumb img,.media-grid .mthumb video{width:100%;height:100%;object-fit:cover;display:block;}
+  .media-grid .play{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:#fff;pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,.6);}
+  .media-grid .dl{position:absolute;right:5px;bottom:5px;background:rgba(0,0,0,.55);border-radius:9px;width:28px;height:28px;display:grid;place-items:center;font-size:14px;cursor:pointer;color:#fff;text-decoration:none;}
+  .note{font-size:12.5px;font-weight:600;color:var(--ink-faint);margin-top:8px;line-height:1.5;}
+  .back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--ink-dim);font-family:var(--fdisp);font-weight:600;font-size:14px;cursor:pointer;padding:8px 0;margin-bottom:4px;}
+  .back:active{transform:translateX(-2px);}
+  .onb{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));max-width:440px;margin:0 auto;}
+  .onb .logo{font-family:var(--fdisp);font-weight:700;font-size:60px;letter-spacing:-2px;line-height:.9;text-align:center;}
+  .onb .tag{text-align:center;color:var(--ink-dim);font-size:15px;font-weight:700;margin:16px 0 26px;}
+  .pfp-pick{display:flex;flex-direction:column;align-items:center;gap:12px;margin:8px 0;}
+  .pfp-big{width:100px;height:100px;border-radius:26px;object-fit:cover;cursor:pointer;display:grid;place-items:center;
+    font-family:var(--fdisp);font-weight:700;font-size:36px;color:#fff;border:3px solid var(--line);}
+  .pfp-hint{font-family:var(--fdisp);font-weight:600;font-size:12px;color:var(--ink-faint);}
+  #toast{position:fixed;bottom:calc(26px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:#fff;
+    font-weight:700;font-size:14px;padding:12px 20px;border-radius:13px;z-index:200;transition:.2s;pointer-events:none;box-shadow:var(--shadow);}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .modal{position:fixed;inset:0;background:rgba(20,20,40,.4);z-index:150;display:none;align-items:flex-end;justify-content:center;}
+  .modal.open{display:flex;animation:rise .2s;}
+  .sheet{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:24px 18px calc(30px + env(safe-area-inset-bottom));animation:rise .26s;box-shadow:0 -10px 40px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;}
+  .sheet h3{font-family:var(--fdisp);font-weight:700;font-size:22px;margin:0 0 4px;}
+  .hidden-file{display:none;}
+  .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #setupGate{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;padding:30px;flex-direction:column;justify-content:center;max-width:520px;margin:0 auto;}
+  #setupGate h2{font-family:var(--fdisp);color:var(--orange);font-size:26px;margin:0 0 10px;}
+  #setupGate p{color:var(--ink-dim);font-size:15px;font-weight:600;line-height:1.7;}
+  #setupGate code{font-family:monospace;color:var(--blue);font-size:13px;}
+</style>
+
+<div id="setupGate">
+  <h2>One step before launch</h2>
+  <p>Paste your Firebase config into this file (look for <code>const firebaseConfig = {…}</code>), then re-open it.</p>
+</div>
+
+<div id="onboarding" class="onb" style="display:none;">
+  <div class="logo"><span style="color:var(--green)">Y</span><span style="color:var(--blue)">A</span><span style="color:var(--pink)">S</span><span style="color:var(--orange)">A</span><span style="color:var(--green)">K</span><span style="color:var(--blue)">I</span></div>
+  <div class="tag">the homies hangout board.<br>set up your account.</div>
+  <div class="pfp-pick">
+    <div id="onbPfp" class="pfp-big" style="background:var(--pink)">?</div>
+    <div class="pfp-hint">tap to add a photo</div>
+  </div>
+  <label class="fld"><span class="lab">your name</span>
+    <input type="text" id="onbName" placeholder="what do they call you" maxlength="22" autocomplete="off">
+  </label>
+  <div class="toggle-row"><span class="tt">i have a car 🚗</span><div class="switch" id="onbCar"><i></i></div></div>
+  <div class="toggle-row"><span class="tt">i have my license 🪪</span><div class="switch" id="onbLic"><i></i></div></div>
+  <span class="lab" style="margin-top:18px;">what you usually bring</span>
+  <div class="vice-row"><div class="vice nic" id="onbNic">nic</div><div class="vice yart" id="onbYart">yart</div><div class="vice alc" id="onbAlc">alc</div></div>
+  <button class="btn btn-blue" id="onbGo" style="margin-top:24px;">create account</button>
+  <input type="file" id="onbFile" accept="image/*" class="hidden-file">
+</div>
+
+<div id="app" class="wrap" style="display:none;">
+  <div class="topbar">
+    <div class="brand" id="goHome"><span class="mark"><span style="color:var(--green)">Y</span><span style="color:var(--blue)">A</span><span style="color:var(--pink)">S</span><span style="color:var(--orange)">A</span><span style="color:var(--green)">K</span><span style="color:var(--blue)">I</span></span></div>
+    <div class="me-chip" id="meChip"><span id="meAv" class="avatar"></span><span class="nm" id="meName"></span></div>
+  </div>
+
+  <div id="v-home" class="view active">
+    <div class="hero-actions">
+      <div class="hero-card declare" id="btnDeclare"><div class="big">DECLARE</div><div class="sub">start a hangout · pick the spot</div><div class="ic">🔥</div></div>
+      <div class="hero-card join" id="btnJoinList"><div class="big">JOIN</div><div class="sub">pull up to whatever's live</div><div class="ic">🛹</div></div>
+    </div>
+    <div class="section-label">live hangouts <span id="liveCount" style="color:var(--ink-faint)"></span></div>
+    <div id="homeList"></div>
+  </div>
+
+  <div id="v-declare" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">declare a hangout</div>
+    <span class="lab">the spot</span>
+    <div class="spot-grid" id="spotGrid"></div>
+    <label class="fld"><span class="lab">start time</span><input type="time" id="decTime"></label>
+    <div class="toggle-row"><span class="tt">i can pick people up 🚗</span><div class="switch" id="decDrive"><i></i></div></div>
+    <button class="btn btn-orange" id="decGo" style="margin-top:24px;">declare it</button>
+  </div>
+
+  <div id="v-detail" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="det-head">
+      <div class="de" id="detEmoji">🛹</div>
+      <div style="flex:1;min-width:0;"><h2 id="detName">Spot</h2><div class="dm">starts <span class="t" id="detTime">—</span> · by <span id="detHost">—</span></div></div>
+    </div>
+    <div class="mycard" id="myCard">
+      <div class="mh">your status</div>
+      <div id="notJoined">
+        <div style="color:var(--ink-dim);font-size:15px;font-weight:600;margin:6px 0 12px;">you haven't pulled up yet.</div>
+        <button class="btn btn-green" id="joinNow">join this hangout</button>
+      </div>
+      <div id="joinedBox" style="display:none;">
+        <label class="fld"><span class="lab">when you'll arrive</span><input type="time" id="myArrive"></label>
+        <div class="toggle-row"><span class="tt">i can pick people up 🚗</span><div class="switch" id="myDrive"><i></i></div></div>
+        <div class="toggle-row" id="needRideRow"><span class="tt">🙋 i need a ride</span><div class="switch" id="myNeedRide"><i></i></div></div>
+        <div id="bringWrap" style="display:none;">
+          <span class="lab" style="margin-top:14px;">people you're bringing</span>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input type="text" id="bringIn" placeholder="add a name" maxlength="22">
+            <button class="btn btn-ghost btn-sm" id="bringAdd" style="flex:none;">add</button>
+          </div>
+          <div class="chips-in" id="bringChips"></div>
+        </div>
+        <span class="lab" style="margin-top:16px;">bringing</span>
+        <div class="vice-row"><div class="vice nic" id="vNic">nic</div><div class="vice yart" id="vYart">yart</div><div class="vice alc" id="vAlc">alc</div></div>
+        <div style="font-family:var(--fdisp);font-weight:600;font-size:12px;color:var(--ink-faint);margin-top:10px;">changes save automatically ✓</div>
+      </div>
+    </div>
+    <div class="section-label">rides</div>
+    <div id="ridesBox"></div>
+    <div class="section-label">who's coming <span id="detCount" style="color:var(--ink-faint)"></span></div>
+    <div id="attList"></div>
+    <div class="section-label">photos & videos</div>
+    <button class="btn btn-blue" id="addMedia">+ add a photo or video</button>
+    <div class="media-grid" id="mediaGrid"></div>
+    <div class="note">uploads are live for everyone &amp; downloadable. on phones, long-press to save.</div>
+    <input type="file" id="mediaFile" accept="image/*,video/*" class="hidden-file">
+  </div>
+</div>
+
+<div class="modal" id="profModal">
+  <div class="sheet">
+    <h3>your account</h3>
+    <div class="pfp-pick" style="margin-top:14px;"><div id="editPfp" class="pfp-big"></div><div class="pfp-hint">tap to change photo</div></div>
+    <label class="fld"><span class="lab">name</span><input type="text" id="editName" maxlength="22"></label>
+    <div class="toggle-row"><span class="tt">i have a car 🚗</span><div class="switch" id="editCar"><i></i></div></div>
+    <div class="toggle-row"><span class="tt">i have my license 🪪</span><div class="switch" id="editLic"><i></i></div></div>
+    <span class="lab" style="margin-top:18px;">what you usually bring</span>
+    <div class="vice-row"><div class="vice nic" id="editNic">nic</div><div class="vice yart" id="editYart">yart</div><div class="vice alc" id="editAlc">alc</div></div>
+    <div style="display:flex;gap:10px;margin-top:22px;"><button class="btn btn-ghost" id="profCancel">cancel</button><button class="btn btn-blue" id="profSave">save</button></div>
+    <input type="file" id="editFile" accept="image/*" class="hidden-file">
+  </div>
+</div>
+
+<div class="modal" id="spotModal">
+  <div class="sheet">
+    <h3>add a new spot</h3>
+    <label class="fld"><span class="lab">emoji</span><input type="text" id="spotEmoji" placeholder="🍻" maxlength="4" style="font-size:24px;text-align:center;"></label>
+    <label class="fld"><span class="lab">spot name</span><input type="text" id="spotName" placeholder="the bridge" maxlength="26"></label>
+    <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-ghost" id="spotCancel">cancel</button><button class="btn btn-orange" id="spotSave">add spot</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, updateDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+/* ⬇⬇⬇  YOUR FIREBASE CONFIG  ⬇⬇⬇ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCqFwRkyA-Qn8hzuWNEz739C_Os6BEDJm4",
+  authDomain: "yasaki-92549.firebaseapp.com",
+  projectId: "yasaki-92549",
+  storageBucket: "yasaki-92549.firebasestorage.app",
+  messagingSenderId: "103686912020",
+  appId: "1:103686912020:web:b5dad852958b8b2de3cf01"
+};
+/* ⬆⬆⬆  YOUR FIREBASE CONFIG  ⬆⬆⬆ */
+
+/* Photos/videos need Firebase Storage. Flip to true AFTER you enable Storage. */
+const STORAGE_ENABLED = false;
+
+const $ = id => document.getElementById(id);
+
+if (firebaseConfig.apiKey.includes("PASTE")) { $('setupGate').style.display='flex'; }
+else { startApp(); }
+
+function startApp(){
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  const AVATAR_COLORS = ['#23c55e','#3b8dff','#ff5ea0','#ff8a39','#a06bff','#ffc23d','#2dd4bf'];
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+  let ME=null, SPOTS=[], CURRENT=null, pendingPfp=null, decSel=null;
+  let unsubHome=null, unsubAtt=null, unsubMedia=null, unsubHangout=null, unsubSpots=null;
+
+  function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
+  function initials(n){ return (n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase()||'?'; }
+  function colorFor(s){ let h=0; for(const c of (s||'x')) h=(h*31+c.charCodeAt(0))>>>0; return AVATAR_COLORS[h%AVATAR_COLORS.length]; }
+  function avatarHTML(p, cls='avatar'){ if(p&&p.pfp) return `<img class="${cls}" src="${p.pfp}" alt="">`; const nm=p?p.name:'?'; return `<span class="${cls}" style="background:${colorFor(nm)}">${initials(nm)}</span>`; }
+  function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function fmtTime(t){ if(!t) return ''; const [H,M]=t.split(':').map(Number); const ap=H>=12?'pm':'am'; const h=((H+11)%12)+1; return `${h}:${String(M).padStart(2,'0')}${ap}`; }
+  function roundedNow(){ const d=new Date(); d.setMinutes(Math.ceil(d.getMinutes()/15)*15); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function resizeImage(file,max,q){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{ let {width:w,height:h}=img; if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;} const c=document.createElement('canvas'); c.width=w;c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); res(c.toDataURL('image/jpeg',q)); }; img.onerror=rej; img.src=r.result; }; r.onerror=rej; r.readAsDataURL(file); }); }
+  function dataURLToBlob(d){ const [hd,b]=d.split(','); const mime=hd.match(/:(.*?);/)[1]; const bin=atob(b); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return new Blob([u],{type:mime}); }
+  function toggle(el){ el.onclick=()=>el.classList.toggle('on'); }
+
+  (async function boot(){
+    ME = JSON.parse(localStorage.getItem('yasaki_me')||'null');
+    await ensureSpots();
+    wireOnboarding(); wireApp();
+    if(ME){ enterApp(); } else { $('onboarding').style.display='flex'; }
+  })();
+
+  async function ensureSpots(){
+    const snap = await getDocs(collection(db,'spots'));
+    if(snap.empty){
+      const defs=[{emoji:'🛹',name:'Skatepark'},{emoji:'🎨',name:'Graffiti Spot'},{emoji:'⛺',name:'Anderson Shelter'}];
+      for(const d of defs){ await setDoc(doc(db,'spots',uid()), d); }
+    }
+    unsubSpots = onSnapshot(collection(db,'spots'), s=>{ SPOTS=s.docs.map(d=>({id:d.id,...d.data()})); if($('v-declare').classList.contains('active')) renderSpotGrid(); });
+  }
+
+  function enterApp(){ $('onboarding').style.display='none'; $('app').style.display='block'; renderMeChip(); setupMediaUI(); showView('home'); listenHome(); }
+  function setupMediaUI(){
+    if(STORAGE_ENABLED) return;
+    $('addMedia').style.display='none';
+    $('mediaGrid').innerHTML='';
+    const note=document.querySelector('#v-detail .note');
+    if(note) note.textContent='photos & videos are off for now — turn on Firebase Storage later to switch them on.';
+  }
+  function renderMeChip(){ $('meAv').outerHTML=avatarHTML(ME,'avatar'); $('meName').textContent=ME.name; }
+  function showView(n){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $('v-'+n).classList.add('active'); window.scrollTo(0,0); }
+
+  function wireOnboarding(){
+    $('onbPfp').onclick=()=>$('onbFile').click();
+    $('onbFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const d=await resizeImage(f,220,.72); pendingPfp=d; $('onbPfp').style.background='transparent'; $('onbPfp').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`; };
+    $('onbName').oninput=e=>{ if(!pendingPfp){ const n=e.target.value; $('onbPfp').style.background=colorFor(n); $('onbPfp').textContent=initials(n); } };
+    ['onbCar','onbLic'].forEach(id=>toggle($(id)));
+    ['onbNic','onbYart','onbAlc'].forEach(id=>toggle($(id)));
+    $('onbGo').onclick=async ()=>{
+      const name=$('onbName').value.trim(); if(!name){ toast('drop your name first'); return; }
+      ME={ id:uid(), name, pfp:pendingPfp||null,
+        hasCar:$('onbCar').classList.contains('on'), hasLicense:$('onbLic').classList.contains('on'),
+        nic:$('onbNic').classList.contains('on'), yart:$('onbYart').classList.contains('on'), alc:$('onbAlc').classList.contains('on') };
+      localStorage.setItem('yasaki_me',JSON.stringify(ME));
+      await setDoc(doc(db,'users',ME.id), profileDoc());
+      enterApp();
+    };
+  }
+  function profileDoc(){ return {name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense,nic:!!ME.nic,yart:!!ME.yart,alc:!!ME.alc}; }
+
+  function listenHome(){
+    if(unsubHome) unsubHome();
+    unsubHome = onSnapshot(collection(db,'hangouts'), async snap=>{
+      const items=[];
+      for(const d of snap.docs){ const h={id:d.id,...d.data()}; const a=await getDocs(collection(db,'hangouts',d.id,'attendees')); items.push({h,count:a.size}); }
+      items.sort((a,b)=>(b.h.createdAt||0)-(a.h.createdAt||0));
+      $('liveCount').textContent=items.length?`(${items.length})`:'';
+      const wrap=$('homeList');
+      if(!items.length){ wrap.innerHTML=`<div class="empty">nothing live right now.<br>be the one to <b style="color:var(--orange)">declare</b> something 🔥</div>`; return; }
+      wrap.innerHTML=items.map(({h,count})=>`<div class="hcard" data-open="${h.id}"><div class="spot-emoji">${h.emoji}</div><div class="hc-body"><div class="hc-title">${esc(h.name)}</div><div class="hc-meta"><span>starts <span class="t">${fmtTime(h.time)}</span></span><span>by ${esc(h.hostName)}</span></div></div><div class="count-pill">${count} 👥</div></div>`).join('');
+    });
+  }
+
+  function renderSpotGrid(){
+    $('spotGrid').innerHTML = SPOTS.map(s=>`<div class="spot-pick ${decSel===s.id?'sel':''}" data-spot="${s.id}"><span class="em">${s.emoji}</span><span>${esc(s.name)}</span></div>`).join('')
+      + `<div class="spot-pick spot-add" id="addSpotBtn"><span class="em">＋</span><span>new spot</span></div>`;
+  }
+  function openDeclare(){ decSel=null; $('decTime').value=roundedNow(); $('decDrive').classList.remove('on'); renderSpotGrid(); showView('declare'); }
+
+  function openHangout(id){
+    CURRENT=id;
+    if(unsubHangout) unsubHangout();
+    unsubHangout = onSnapshot(doc(db,'hangouts',id), d=>{
+      if(!d.exists()){ toast('this hangout ended'); leaveDetail(); showView('home'); return; }
+      const h=d.data(); $('detEmoji').textContent=h.emoji; $('detName').textContent=h.name; $('detTime').textContent=fmtTime(h.time); $('detHost').textContent=h.hostName; $('v-detail').dataset.host=h.hostId;
+    });
+    if(unsubAtt) unsubAtt();
+    unsubAtt = onSnapshot(collection(db,'hangouts',id,'attendees'), snap=>{
+      const atts=snap.docs.map(d=>({userId:d.id,...d.data()})).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));
+      const hostId=$('v-detail').dataset.host;
+      const mine=atts.find(a=>a.userId===ME.id); renderMyCard(mine);
+      renderRides(atts, mine);
+      $('detCount').textContent=atts.length?`(${atts.length})`:'';
+      const list=$('attList');
+      if(!atts.length){ list.innerHTML=`<div class="empty">no one's pulled up yet.</div>`; return; }
+      list.innerHTML=atts.map(a=>{
+        const isMe=a.userId===ME.id, isHost=a.userId===hostId;
+        const mini=[a.hasCar?'🚗 car':'', a.hasLicense?'🪪 licensed':''].filter(Boolean).join(' · ');
+        const vt=[a.nic?'<span class="v-tag nic">nic</span>':'',a.yart?'<span class="v-tag yart">yart</span>':'',a.alc?'<span class="v-tag alc">alc</span>':''].join('');
+        const br=(a.bringing&&a.bringing.length)?`<div class="bringing">bringing: <b>${a.bringing.map(esc).join(', ')}</b></div>`:'';
+        return `<div class="att">${avatarHTML(a,'av avatar')}<div class="ab"><div class="an">${esc(a.name)}${isMe?'<span class="badge b-you">you</span>':''}${isHost?'<span class="badge b-host">host</span>':''}${a.driver?'<span class="badge b-drive">🚗 driving</span>':''}${a.needsRide&&!a.rideWith?'<span class="badge b-ride">🙋 needs ride</span>':''}</div><div class="am">arriving <span class="arr">${fmtTime(a.arrive)||'—'}</span>${mini?` · <span class="mini">${mini}</span>`:''}</div>${vt?`<div class="v-tags">${vt}</div>`:''}${br}</div></div>`;
+      }).join('');
+    });
+    if(STORAGE_ENABLED){
+      if(unsubMedia) unsubMedia();
+      unsubMedia = onSnapshot(collection(db,'hangouts',id,'media'), snap=>{
+        const photos=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.t||0)-(a.t||0));
+        const grid=$('mediaGrid');
+        grid.innerHTML=photos.map(p=> p.type==='video'
+          ? `<div class="mthumb"><video src="${p.url}" muted playsinline preload="metadata"></video><div class="play">▶</div><a class="dl" href="${p.url}" target="_blank" rel="noopener">⤓</a></div>`
+          : `<div class="mthumb"><img src="${p.url}" alt=""><a class="dl" href="${p.url}" target="_blank" rel="noopener" download>⤓</a></div>`
+        ).join('');
+      });
+    }
+    showView('detail');
+  }
+  function leaveDetail(){ if(unsubAtt)unsubAtt(); if(unsubMedia)unsubMedia(); if(unsubHangout)unsubHangout(); unsubAtt=unsubMedia=unsubHangout=null; CURRENT=null; }
+
+  function renderRides(atts, mine){
+    const box=$('ridesBox');
+    const need=atts.filter(a=>a.needsRide && !a.rideWith);
+    const assigned=atts.filter(a=>a.rideWith);
+    const iDrive=mine && mine.driver;
+    if(!need.length && !assigned.length){ box.innerHTML=`<div class="empty" style="padding:18px;">no ride requests yet.${(mine&&!mine.driver)?'<br>need one? flip "i need a ride" above.':''}</div>`; return; }
+    let html=need.map(a=>{
+      const isMe=a.userId===ME.id;
+      const right = (iDrive && !isMe) ? `<button class="btn btn-green btn-sm" data-grab="${a.userId}" data-rname="${esc(a.name)}">i got them</button>`
+                  : (isMe ? `<span class="ride-wait">waiting…</span>` : '');
+      return `<div class="ride-row"><span class="rl">🙋 <b>${esc(a.name)}</b> needs a ride</span>${right}</div>`;
+    }).join('');
+    html+=assigned.map(a=>`<div class="ride-row done"><span class="rl">✅ <b>${esc(a.name)}</b> riding with ${esc(a.rideWith)}</span></div>`).join('');
+    box.innerHTML=html;
+  }
+
+  function renderMyCard(mine){
+    if(!mine){ $('notJoined').style.display='block'; $('joinedBox').style.display='none'; return; }
+    $('notJoined').style.display='none'; $('joinedBox').style.display='block';
+    const drv=!!mine.driver;
+    $('myArrive').value=mine.arrive||'';
+    $('myDrive').classList.toggle('on',drv);
+    $('bringWrap').style.display=drv?'block':'none';
+    $('needRideRow').style.display=drv?'none':'flex';
+    $('myNeedRide').classList.toggle('on',!!mine.needsRide);
+    renderBringChips(mine.bringing||[]);
+    $('vNic').classList.toggle('on',!!mine.nic); $('vYart').classList.toggle('on',!!mine.yart); $('vAlc').classList.toggle('on',!!mine.alc);
+  }
+  function renderBringChips(arr){ $('bringChips').innerHTML=arr.map((n,i)=>`<span class="chip-d">${esc(n)} <b data-del="${i}">×</b></span>`).join(''); }
+
+  async function myAttRef(){ return doc(db,'hangouts',CURRENT,'attendees',ME.id); }
+  async function getMyAtt(){ const s=await getDoc(await myAttRef()); return s.exists()?s.data():null; }
+  async function saveMyAtt(patch){
+    const base={name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense,joinedAt:Date.now(),arrive:'',driver:false,needsRide:false,rideWith:null,bringing:[],nic:!!ME.nic,yart:!!ME.yart,alc:!!ME.alc};
+    const cur = await getMyAtt() || base;
+    const next={...cur, name:ME.name, pfp:ME.pfp||null, hasCar:!!ME.hasCar, hasLicense:!!ME.hasLicense, ...patch};
+    await setDoc(await myAttRef(), next); return next;
+  }
+
+  function wireApp(){
+    $('goHome').onclick=()=>{ leaveDetail(); showView('home'); };
+    document.querySelectorAll('[data-home]').forEach(b=> b.onclick=()=>{ leaveDetail(); showView('home'); });
+    $('btnDeclare').onclick=openDeclare;
+    $('btnJoinList').onclick=()=>{ showView('home'); toast('tap a live hangout to join'); };
+    $('homeList').onclick=e=>{ const c=e.target.closest('[data-open]'); if(c) openHangout(c.dataset.open); };
+    $('spotGrid').onclick=e=>{ if(e.target.closest('#addSpotBtn')){ openSpotModal(); return; } const s=e.target.closest('[data-spot]'); if(s){ decSel=s.dataset.spot; renderSpotGrid(); } };
+    $('decDrive').onclick=()=>$('decDrive').classList.toggle('on');
+    $('decGo').onclick=async ()=>{
+      if(!decSel){ toast('pick a spot'); return; }
+      const spot=SPOTS.find(s=>s.id===decSel); const time=$('decTime').value;
+      if(!time){ toast('set a start time'); return; }
+      const id=uid(); const drive=$('decDrive').classList.contains('on');
+      await setDoc(doc(db,'hangouts',id),{name:spot.name,emoji:spot.emoji,time,hostId:ME.id,hostName:ME.name,createdAt:Date.now()});
+      CURRENT=id; await saveMyAtt({arrive:time, driver:drive, needsRide:false});
+      toast('declared 🔥'); openHangout(id);
+    };
+    $('joinNow').onclick=async ()=>{ await saveMyAtt({arrive:roundedNow()}); toast('you pulled up ✓'); };
+    $('myArrive').onchange=async ()=>{ await saveMyAtt({arrive:$('myArrive').value}); toast('arrival updated'); };
+    $('myDrive').onclick=async ()=>{ const on=!$('myDrive').classList.contains('on'); $('myDrive').classList.toggle('on',on); $('bringWrap').style.display=on?'block':'none'; $('needRideRow').style.display=on?'none':'flex'; const patch={driver:on}; if(on) patch.needsRide=false; await saveMyAtt(patch); };
+    $('myNeedRide').onclick=async ()=>{ const on=!$('myNeedRide').classList.contains('on'); $('myNeedRide').classList.toggle('on',on); await saveMyAtt({needsRide:on}); toast(on?'ride requested 🙋':'request cancelled'); };
+    $('ridesBox').onclick=async e=>{
+      const b=e.target.closest('[data-grab]'); if(!b) return;
+      b.disabled=true; const rid=b.dataset.grab, rname=b.dataset.rname;
+      try{
+        await updateDoc(doc(db,'hangouts',CURRENT,'attendees',rid),{needsRide:false, rideWith:ME.name});
+        const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; if(!arr.includes(rname)) arr.push(rname); await saveMyAtt({bringing:arr});
+        toast('you got them 🚗');
+      }catch(err){ console.error(err); toast('try again'); b.disabled=false; }
+    };
+    $('bringAdd').onclick=async ()=>{ const n=$('bringIn').value.trim(); if(!n) return; const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; arr.push(n); $('bringIn').value=''; await saveMyAtt({bringing:arr}); renderBringChips(arr); };
+    $('bringIn').onkeydown=e=>{ if(e.key==='Enter') $('bringAdd').click(); };
+    $('bringChips').onclick=async e=>{ const d=e.target.closest('[data-del]'); if(!d) return; const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; arr.splice(+d.dataset.del,1); await saveMyAtt({bringing:arr}); renderBringChips(arr); };
+    ['Nic','Yart','Alc'].forEach(v=>{ $('v'+v).onclick=async ()=>{ const on=!$('v'+v).classList.contains('on'); $('v'+v).classList.toggle('on',on); await saveMyAtt({[v.toLowerCase()]:on}); }; });
+
+    $('addMedia').onclick=()=>$('mediaFile').click();
+    $('mediaFile').onchange=async e=>{
+      const f=e.target.files[0]; if(!f) return;
+      const isVid=f.type.startsWith('video');
+      if(isVid && f.size>120*1024*1024){ toast('video too big (max ~120MB)'); e.target.value=''; return; }
+      $('addMedia').innerHTML='<span class="spinner"></span> uploading…';
+      try{
+        const id=uid(); let blob,ext,type;
+        if(isVid){ blob=f; ext=(f.name.split('.').pop()||'mp4'); type='video'; }
+        else{ blob=dataURLToBlob(await resizeImage(f,1400,.78)); ext='jpg'; type='image'; }
+        const r=sRef(storage, `media/${CURRENT}/${id}.${ext}`);
+        await uploadBytes(r, blob);
+        const url=await getDownloadURL(r);
+        await setDoc(doc(db,'hangouts',CURRENT,'media',id), {url, type, by:ME.id, t:Date.now()});
+        toast(isVid?'video added 🎬':'photo added 📸');
+      }catch(err){ console.error(err); toast('upload failed — check Storage rules'); }
+      $('addMedia').textContent='+ add a photo or video'; e.target.value='';
+    };
+
+    $('meChip').onclick=openProfile;
+    $('editPfp').onclick=()=>$('editFile').click();
+    $('editFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const d=await resizeImage(f,220,.72); pendingPfp=d; $('editPfp').style.background='transparent'; $('editPfp').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`; };
+    ['editCar','editLic'].forEach(id=>toggle($(id)));
+    ['editNic','editYart','editAlc'].forEach(id=>toggle($(id)));
+    $('profCancel').onclick=()=>$('profModal').classList.remove('open');
+    $('profSave').onclick=async ()=>{
+      ME.name=$('editName').value.trim()||ME.name; if(pendingPfp) ME.pfp=pendingPfp;
+      ME.hasCar=$('editCar').classList.contains('on'); ME.hasLicense=$('editLic').classList.contains('on');
+      ME.nic=$('editNic').classList.contains('on'); ME.yart=$('editYart').classList.contains('on'); ME.alc=$('editAlc').classList.contains('on');
+      localStorage.setItem('yasaki_me',JSON.stringify(ME));
+      await setDoc(doc(db,'users',ME.id), profileDoc());
+      renderMeChip(); $('profModal').classList.remove('open'); toast('account updated');
+    };
+
+    $('spotCancel').onclick=()=>$('spotModal').classList.remove('open');
+    $('spotSave').onclick=async ()=>{ const emoji=$('spotEmoji').value.trim()||'📍'; const name=$('spotName').value.trim(); if(!name){ toast('name the spot'); return; } const id=uid(); await setDoc(doc(db,'spots',id),{emoji,name}); decSel=id; $('spotModal').classList.remove('open'); $('spotEmoji').value=''; $('spotName').value=''; toast('spot added 📍'); };
+  }
+
+  function openProfile(){
+    pendingPfp=null;
+    $('editName').value=ME.name;
+    $('editPfp').style.background=ME.pfp?'transparent':colorFor(ME.name);
+    $('editPfp').innerHTML=ME.pfp?`<img src="${ME.pfp}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`:initials(ME.name);
+    $('editCar').classList.toggle('on',!!ME.hasCar); $('editLic').classList.toggle('on',!!ME.hasLicense);
+    $('editNic').classList.toggle('on',!!ME.nic); $('editYart').classList.toggle('on',!!ME.yart); $('editAlc').classList.toggle('on',!!ME.alc);
+    $('profModal').classList.add('open');
+  }
+  function openSpotModal(){ $('spotModal').classList.add('open'); setTimeout(()=>$('spotName').focus(),100); }
+}
+</script>
