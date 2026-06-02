@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Yasaki">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23ffffff'/%3E%3Ctext x='90' y='118' font-size='84' font-family='Arial Black,Arial' font-weight='900' fill='%23ff5ea0' text-anchor='middle'%3EY%3C/text%3E%3C/svg%3E">
-<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Yasaki%22%2C%22short_name%22%3A%22Yasaki%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23ffffff%22%2C%22start_url%22%3A%22https%3A%2F%2Fgrayeli602-prog.github.io%2Fyasaki%2Fyasaki-firebase.html%22%2C%22scope%22%3A%22https%3A%2F%2Fgrayeli602-prog.github.io%2Fyasaki%2F%22%7D">
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Yasaki%22%2C%22short_name%22%3A%22Yasaki%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23ffffff%22%2C%22start_url%22%3A%22.%22%7D">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -247,6 +247,8 @@
   </div>
 
   <div id="v-home" class="view active">
+    <div class="section-label" style="margin-top:8px;">live hangouts <span id="liveCount" style="color:var(--ink-faint)"></span></div>
+    <div id="homeList" style="margin-bottom:18px;"></div>
     <div class="hero-actions">
       <div class="hero-card declare" id="btnDeclare"><div class="big">DECLARE</div><div class="sub">start a hangout · pick the spot</div><div class="ic">🔥</div></div>
       <div class="hero-card join" id="btnJoinList"><div class="big">JOIN</div><div class="sub">pull up to whatever's live</div><div class="ic">🙌</div></div>
@@ -259,8 +261,6 @@
       <button id="btnCrew" class="btn btn-ghost" style="flex:1;">👥 the crew</button>
       <button id="btnShare" class="btn btn-purple" style="flex:1;">🔗 invite</button>
     </div>
-    <div class="section-label">live hangouts <span id="liveCount" style="color:var(--ink-faint)"></span></div>
-    <div id="homeList"></div>
   </div>
 
   <div id="v-chat" class="view">
@@ -292,8 +292,21 @@
     <div class="toggle-row"><span class="tt">🔔 in-app notifications</span><div class="switch" id="setNotif"><i></i></div></div>
     <div class="toggle-row"><span class="tt">📳 buzz my phone (push)</span><div class="switch" id="setPush"><i></i></div></div>
     <div class="note">phone buzz only works after you "Add to Home Screen" and tap Allow. iPhone is picky about this — if it doesn't take, the in-app bell still catches everything.</div>
+    <div id="ownerSettings" style="display:none;">
+      <div class="section-label">owner controls</div>
+      <div class="toggle-row"><span class="tt">💬 allow profile comments</span><div class="switch" id="setComments"><i></i></div></div>
+      <div class="note">turn this off to hide and lock the comment section on everyone's profile.</div>
+    </div>
+    <div class="section-label">history</div>
+    <button class="btn btn-ghost" id="openPast">🕓 past hangouts</button>
     <div class="section-label">your account</div>
     <button class="btn btn-ghost" id="openAccount">edit name, photo, car & license</button>
+  </div>
+
+  <div id="v-past" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">past hangouts <span id="pastCount" style="color:var(--ink-faint)"></span></div>
+    <div id="pastList"></div>
   </div>
 
   <div id="v-friends" class="view">
@@ -359,6 +372,7 @@
         <div class="row-between" style="margin-top:16px;"><span class="lab" style="margin:0;">bringing</span><button id="editViceBtn" class="btn btn-ghost btn-sm" style="padding:6px 11px;font-size:12px;">＋ / edit</button></div>
         <div class="vice-row" id="viceRow"></div>
         <button class="btn btn-leave" id="leaveBtn" style="margin-top:14px;">leave hangout</button>
+        <button class="btn btn-ghost" id="editHangBtn" style="margin-top:10px;display:none;">✏️ edit date / time (host)</button>
         <button class="btn btn-leave" id="endBtn" style="margin-top:10px;display:none;border-color:var(--pink);color:var(--pink);">🗑️ end this hangout (host)</button>
         <div style="font-family:var(--fdisp);font-weight:600;font-size:12px;color:var(--ink-faint);margin-top:10px;">changes save automatically ✓</div>
       </div>
@@ -402,6 +416,7 @@
     </label>
     <div id="spotLocLabel" class="note"></div>
     <button class="btn btn-purple" id="spotVoteDelete" style="display:none;margin-top:18px;">🗳️ start vote to delete</button>
+    <button class="btn btn-leave" id="spotAdminDelete" style="display:none;margin-top:10px;border-color:var(--pink);color:var(--pink);">🗑️ delete now (admin)</button>
     <div style="display:flex;gap:10px;margin-top:14px;"><button class="btn btn-ghost" id="spotCancel">cancel</button><button class="btn btn-orange" id="spotSave">save</button></div>
   </div>
 </div>
@@ -412,6 +427,15 @@
     <label class="fld"><span class="lab">short label (like "food")</span><input type="text" id="viceNew" placeholder="food" maxlength="10"></label>
     <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-ghost" id="viceCancel">cancel</button><button class="btn btn-green" id="viceSave">add it</button></div>
     <div class="note" style="margin-top:14px;">to delete an item the whole crew uses, the ✕ in edit mode starts a 4-hour vote.</div>
+  </div>
+</div>
+
+<div class="modal" id="editHangModal">
+  <div class="sheet">
+    <h3>edit hangout</h3>
+    <label class="fld"><span class="lab">date</span><input type="date" id="ehDate"></label>
+    <label class="fld"><span class="lab">start time</span><input type="time" id="ehTime"></label>
+    <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-ghost" id="ehCancel">cancel</button><button class="btn btn-orange" id="ehSave">save</button></div>
   </div>
 </div>
 
@@ -489,7 +513,7 @@ function startApp(){
   let ME=null, SPOTS=[], VICES=[], CURRENT=null, pendingPfp=null, decSel=null, spotEditMode=false, viceEditMode=false, editingSpot=null, pendingSpotLoc=null, roleTarget=null;
   let map=null, spotMarker=null, peopleMarkers={}, locWatch=null;
   let unsubHome=null, unsubAtt=null, unsubMedia=null, unsubHangout=null, unsubSpots=null, unsubChat=null, unsubVotes=null, unsubFeed=null, unsubVices=null;
-  let viewingProfile=null, unsubComments=null, unsubChatTab=null, unsubCal=null;
+  let viewingProfile=null, viewingProfileName='', editingEvent=null, unsubComments=null, unsubChatTab=null, unsubCal=null;
   let prefs = JSON.parse(localStorage.getItem('yasaki_prefs')||'{"dark":false,"notif":true,"push":false}');
   let lastSeenFeed = +(localStorage.getItem('yasaki_seenfeed')||0);
   let knownFeed = new Set();
@@ -560,7 +584,7 @@ function startApp(){
   function enterApp(){
     $('onboarding').style.display='none'; $('app').style.display='block';
     renderMeChip(); setupMediaUI(); applyPrefUI();
-    showView('home'); listenHome(); listenFeed(); watchMyStatus();
+    showView('home'); listenHome(); listenFeed(); watchMyStatus(); watchConfig();
     if(prefs.push) requestPush(true);
   }
   function watchMyStatus(){
@@ -576,6 +600,7 @@ function startApp(){
       // active
       $('gateRemoved').style.display='none'; $('gatePending').style.display='none'; $('app').style.display='block';
       $('settingsBtn').dataset.admin = (ME.role==='owner'||ME.role==='admin')?'1':'';
+      $('ownerSettings').style.display = (ME.role==='owner')?'block':'none';
     });
   }
   function isAdmin(){ return ME.role==='owner'||ME.role==='admin'; }
@@ -716,7 +741,7 @@ function startApp(){
           <div style="display:flex;align-items:center;gap:13px;">
             <div class="spot-emoji">📅</div>
             <div class="hc-body"><div class="hc-title">${esc(ev.title)}</div><div class="hc-meta"><span>${ev.date?esc(fmtDate(ev.date)):''} <span class="t">${fmtTime(ev.time)}</span></span>${ev.where?`<span>📍 ${esc(ev.where)}</span>`:''}<span>by ${esc(ev.by)}</span></div></div>
-            ${canDel?`<button class="btn btn-leave btn-sm" data-evdel="${ev.id}" style="flex:none;padding:7px 11px;">✕</button>`:''}
+            ${canDel?`<button class="btn btn-ghost btn-sm" data-evedit="${ev.id}" style="flex:none;padding:7px 11px;">✏️</button><button class="btn btn-leave btn-sm" data-evdel="${ev.id}" style="flex:none;padding:7px 11px;">✕</button>`:''}
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <button class="btn ${iGo?'btn-green':'btn-ghost'} btn-sm" data-going="${ev.id}">${iGo?'✓ going':'count me in'}</button>
@@ -727,11 +752,45 @@ function startApp(){
     });
   }
 
+  async function archiveHangout(hid){
+    try{
+      const hs=await getDoc(doc(db,'hangouts',hid)); if(!hs.exists()) return;
+      const h=hs.data();
+      const atts=await getDocs(collection(db,'hangouts',hid,'attendees'));
+      const who=atts.docs.map(d=>d.data().name);
+      await setDoc(doc(db,'past',hid),{name:h.name,emoji:h.emoji,date:h.date||'',time:h.time||'',hostName:h.hostName||'',who,endedAt:Date.now()});
+    }catch(e){}
+  }
+  function openPast(){
+    showView('past');
+    $('pastList').innerHTML=`<div class="empty">loading…</div>`;
+    getDocs(query(collection(db,'past'),orderBy('endedAt','desc'),limit(60))).then(snap=>{
+      const evs=snap.docs.map(d=>d.data());
+      $('pastCount').textContent=evs.length?`(${evs.length})`:'';
+      if(!evs.length){ $('pastList').innerHTML=`<div class="empty">no past hangouts yet.</div>`; return; }
+      $('pastList').innerHTML=evs.map(h=>`<div class="hcard" style="cursor:default;"><div class="spot-emoji">${h.emoji||'📍'}</div><div class="hc-body"><div class="hc-title">${esc(h.name)}</div><div class="hc-meta"><span>${h.date?esc(fmtDate(h.date))+' ':''}<span class="t">${fmtTime(h.time)}</span></span><span>${h.who&&h.who.length?h.who.length+' came: '+h.who.map(esc).join(', '):'by '+esc(h.hostName)}</span></div></div></div>`).join('');
+    }).catch(()=>{ $('pastList').innerHTML=`<div class="empty">couldn't load history.</div>`; });
+  }
+
+  let commentsAllowed=true;
+  function watchConfig(){
+    onSnapshot(doc(db,'config','app'), d=>{
+      const c=d.exists()?d.data():{};
+      commentsAllowed = c.commentsAllowed!==false;
+      $('setComments').classList.toggle('on', commentsAllowed);
+      const cin=$('commentIn'); if(cin){ cin.disabled=!commentsAllowed; cin.placeholder=commentsAllowed?'leave a comment':'comments are turned off'; }
+      $('commentSend').disabled=!commentsAllowed;
+    });
+  }
+
   function openProfileView(userId, fallbackName){
-    viewingProfile=userId; showView('profile');
+    viewingProfile=userId; viewingProfileName=fallbackName; showView('profile');
+    $('commentIn').disabled=!commentsAllowed; $('commentSend').disabled=!commentsAllowed;
+    $('commentIn').placeholder=commentsAllowed?'leave a comment':'comments are turned off';
     $('commentList').innerHTML=`<div class="empty">loading…</div>`;
     getDoc(doc(db,'users',userId)).then(s=>{
       const u=s.exists()?s.data():{name:fallbackName};
+      viewingProfileName=u.name||fallbackName;
       $('pvAvatar').innerHTML=avatarHTML(u,'de avatar').replace('class="de avatar"','class="avatar" style="width:62px;height:62px;border-radius:16px;font-size:22px;"');
       $('pvName').textContent=u.name||fallbackName;
       $('pvMeta').innerHTML=[u.hasCar?'🚗 car':'',u.hasLicense?'🪪 licensed':'', roleBadge(u)?u.role:''].filter(Boolean).join(' · ')||'crew member';
@@ -740,6 +799,7 @@ function startApp(){
     unsubComments=onSnapshot(query(collection(db,'users',userId,'comments'),orderBy('t','desc'),limit(60)), snap=>{
       const cs=snap.docs.map(d=>({id:d.id,...d.data()}));
       const wrap=$('commentList');
+      if(!commentsAllowed){ wrap.innerHTML=`<div class="empty" style="padding:18px;">comments are turned off by the owner.</div>`; return; }
       if(!cs.length){ wrap.innerHTML=`<div class="empty" style="padding:18px;">no comments yet. be the first 👀</div>`; return; }
       wrap.innerHTML=cs.map(c=>{
         const canDel=isAdmin()||c.uid===ME.id;
@@ -772,6 +832,8 @@ function startApp(){
       if(!d.exists()){ toast('this hangout ended'); leaveDetail(); showView('home'); return; }
       const h=d.data(); $('detEmoji').textContent=h.emoji; $('detName').textContent=h.name; $('detDate').textContent=h.date?fmtDate(h.date)+' · ':''; $('detTime').textContent=fmtTime(h.time); $('detHost').textContent=h.hostName; $('v-detail').dataset.host=h.hostId; $('v-detail').dataset.spotid=h.spotId||'';
       $('endBtn').style.display = (h.hostId===ME.id || isAdmin()) ? 'block':'none';
+      $('editHangBtn').style.display = (h.hostId===ME.id || isAdmin()) ? 'block':'none';
+      $('v-detail').dataset.hdate=h.date||''; $('v-detail').dataset.htime=h.time||'';
       setupMap(h);
     });
     if(unsubAtt) unsubAtt();
@@ -935,6 +997,7 @@ function startApp(){
     $('homeList').onclick=async e=>{
       const del=e.target.closest('[data-hdel]');
       if(del){ e.stopPropagation(); if(!confirm(`Remove the "${del.dataset.hname}" hangout?`)) return; const hid=del.dataset.hdel;
+        await archiveHangout(hid);
         try{ const atts=await getDocs(collection(db,'hangouts',hid,'attendees')); for(const a of atts.docs){ await deleteDoc(a.ref); } }catch(_){}
         await deleteDoc(doc(db,'hangouts',hid)); await pushFeed('🗑️', `${ME.name} removed the ${del.dataset.hname} hangout`); toast('removed'); return; }
       const c=e.target.closest('[data-open]'); if(c) openHangout(c.dataset.open);
@@ -945,6 +1008,8 @@ function startApp(){
     $('setNotif').onclick=()=>{ prefs.notif=!prefs.notif; $('setNotif').classList.toggle('on',prefs.notif); savePrefs(); if(!prefs.notif) $('bellDot').style.display='none'; };
     $('setPush').onclick=()=>{ if(!prefs.push){ requestPush(false); } else { prefs.push=false; applyPrefUI(); savePrefs(); toast('phone buzz off'); } };
     $('openAccount').onclick=openProfile;
+    $('openPast').onclick=openPast;
+    $('setComments').onclick=async ()=>{ const on=!$('setComments').classList.contains('on'); $('setComments').classList.toggle('on',on); await setDoc(doc(db,'config','app'),{commentsAllowed:on},{merge:true}); toast(on?'comments on':'comments off'); };
 
     // spots
     $('editSpotsBtn').onclick=()=>{ spotEditMode=!spotEditMode; $('editSpotsBtn').textContent=spotEditMode?'✓ done':'✏️ edit spots'; renderSpotGrid(); if(spotEditMode) toast('tap a spot to edit it'); };
@@ -976,37 +1041,46 @@ function startApp(){
       const hid=CURRENT;
       stopSharingLoc();
       await deleteDoc(doc(db,'hangouts',hid,'attendees',ME.id));
-      try{ const rest=await getDocs(collection(db,'hangouts',hid,'attendees')); if(rest.empty){ await deleteDoc(doc(db,'hangouts',hid)); await pushFeed('💨', `the ${$('detName').textContent} hangout ended`); } }catch(e){}
+      try{ const rest=await getDocs(collection(db,'hangouts',hid,'attendees')); if(rest.empty){ await archiveHangout(hid); await deleteDoc(doc(db,'hangouts',hid)); await pushFeed('💨', `the ${$('detName').textContent} hangout ended`); } }catch(e){}
       toast('you left'); leaveDetail(); showView('home');
     };
     $('endBtn').onclick=async ()=>{
       if(!confirm('End this hangout for everyone? This deletes it.')) return;
       const hid=CURRENT, nm=$('detName').textContent;
+      await archiveHangout(hid);
       try{ const atts=await getDocs(collection(db,'hangouts',hid,'attendees')); for(const a of atts.docs){ await deleteDoc(a.ref); } }catch(e){}
       await deleteDoc(doc(db,'hangouts',hid));
       await pushFeed('🗑️', `${ME.name} ended the hangout at ${nm}`);
       toast('hangout ended'); leaveDetail(); showView('home');
     };
+    $('editHangBtn').onclick=()=>{ $('ehDate').value=$('v-detail').dataset.hdate||new Date().toISOString().slice(0,10); $('ehTime').value=$('v-detail').dataset.htime||roundedNow(); $('editHangModal').classList.add('open'); };
+    $('ehCancel').onclick=()=>$('editHangModal').classList.remove('open');
+    $('ehSave').onclick=async ()=>{ if(!CURRENT) return; await updateDoc(doc(db,'hangouts',CURRENT),{date:$('ehDate').value, time:$('ehTime').value}); $('editHangModal').classList.remove('open'); toast('hangout updated ✏️'); };
     // calendar
-    $('addEventBtn').onclick=()=>{ $('evTitle').value=''; $('evWhere').value=''; $('evDate').value=new Date().toISOString().slice(0,10); $('evTime').value=roundedNow(); $('eventModal').classList.add('open'); setTimeout(()=>$('evTitle').focus(),100); };
+    $('addEventBtn').onclick=()=>{ editingEvent=null; $('evTitle').value=''; $('evWhere').value=''; $('evDate').value=new Date().toISOString().slice(0,10); $('evTime').value=roundedNow(); $('eventModal').querySelector('h3').textContent='add an event'; $('eventModal').classList.add('open'); setTimeout(()=>$('evTitle').focus(),100); };
     $('evCancel').onclick=()=>$('eventModal').classList.remove('open');
     $('evSave').onclick=async ()=>{
       const title=$('evTitle').value.trim(); if(!title){ toast('name the event'); return; }
+      if(editingEvent){
+        await updateDoc(doc(db,'events',editingEvent),{title,date:$('evDate').value,time:$('evTime').value,where:$('evWhere').value.trim()});
+        $('eventModal').classList.remove('open'); toast('event updated ✏️'); editingEvent=null; openCal(); return;
+      }
       const id=uid();
       await setDoc(doc(db,'events',id),{title,date:$('evDate').value,time:$('evTime').value,where:$('evWhere').value.trim(),by:ME.name,byId:ME.id,createdAt:Date.now(),going:{}});
       await pushFeed('📅', `${ME.name} added an event: ${title} (${fmtDate($('evDate').value)})`);
       $('eventModal').classList.remove('open'); toast('event added 📅'); openCal();
     };
     $('calList').onclick=async e=>{
-      const g=e.target.closest('[data-going]'); const del=e.target.closest('[data-evdel]');
+      const g=e.target.closest('[data-going]'); const del=e.target.closest('[data-evdel]'); const ed=e.target.closest('[data-evedit]');
       if(g){ const ref=doc(db,'events',g.dataset.going); const s=await getDoc(ref); if(!s.exists())return; const ev=s.data(); const going={...(ev.going||{})}; if(going[ME.id]) delete going[ME.id]; else going[ME.id]=ME.name; await updateDoc(ref,{going}); openCal(); }
       if(del){ if(!confirm('Delete this event?')) return; await deleteDoc(doc(db,'events',del.dataset.evdel)); toast('event deleted'); openCal(); }
+      if(ed){ const s=await getDoc(doc(db,'events',ed.dataset.evedit)); if(!s.exists())return; const ev=s.data(); editingEvent=ed.dataset.evedit; $('evTitle').value=ev.title||''; $('evWhere').value=ev.where||''; $('evDate').value=ev.date||''; $('evTime').value=ev.time||''; $('eventModal').querySelector('h3').textContent='edit event'; $('eventModal').classList.add('open'); }
     };
 
     // profile comments
     $('profBack').onclick=openFriends;
     $('commentSend').onclick=postComment; $('commentIn').onkeydown=e=>{ if(e.key==='Enter') postComment(); };
-    async function postComment(){ const t=$('commentIn').value.trim(); if(!t||!viewingProfile) return; $('commentIn').value=''; await addDoc(collection(db,'users',viewingProfile,'comments'),{uid:ME.id,name:ME.name,text:t,t:Date.now()}); }
+    async function postComment(){ if(!commentsAllowed){ toast('comments are off'); return; } const t=$('commentIn').value.trim(); if(!t||!viewingProfile) return; $('commentIn').value=''; await addDoc(collection(db,'users',viewingProfile,'comments'),{uid:ME.id,name:ME.name,text:t,t:Date.now()}); if(viewingProfile!==ME.id) await pushFeed('💬', `${ME.name} commented on ${viewingProfileName}'s profile`); }
     $('commentList').onclick=async e=>{ const d=e.target.closest('[data-cdel]'); if(!d) return; if(!confirm('Remove this comment?')) return; await deleteDoc(doc(db,'users',viewingProfile,'comments',d.dataset.cdel)); };
 
 
@@ -1053,7 +1127,7 @@ function startApp(){
     };
     // chat
     $('chatSend').onclick=sendChat; $('chatIn').onkeydown=e=>{ if(e.key==='Enter') sendChat(); };
-    async function sendChat(){ const t=$('chatIn').value.trim(); if(!t) return; $('chatIn').value=''; await addDoc(collection(db,'chat'),{uid:ME.id,name:ME.name,text:t,t:Date.now()}); }
+    async function sendChat(){ const t=$('chatIn').value.trim(); if(!t) return; $('chatIn').value=''; await addDoc(collection(db,'chat'),{uid:ME.id,name:ME.name,text:t,t:Date.now()}); await pushFeed('💬', `${ME.name}: ${t.length>40?t.slice(0,40)+'…':t}`); }
 
     $('bringAdd').onclick=async ()=>{ const n=$('bringIn').value.trim(); if(!n) return; const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; arr.push(n); $('bringIn').value=''; await saveMyAtt({bringing:arr}); renderBringChips(arr); };
     $('bringIn').onkeydown=e=>{ if(e.key==='Enter') $('bringAdd').click(); };
@@ -1063,7 +1137,10 @@ function startApp(){
     $('editViceBtn').onclick=()=>{ viceEditMode=!viceEditMode; $('editViceBtn').textContent=viceEditMode?'✓ done':'＋ / edit'; refreshViceRow(); };
     $('viceRow').onclick=async e=>{
       const del=e.target.closest('[data-vdel]');
-      if(del){ e.stopPropagation(); const label=del.dataset.vdel; startVote('vice', label, label); return; }
+      if(del){ e.stopPropagation(); const label=del.dataset.vdel;
+        if(isAdmin()){ if(!confirm(`Delete the "${label}" item now?`)) return; await deleteDoc(doc(db,'vices',label)); await pushFeed('🗑️', `${ME.name} deleted the bring-item "${label}"`); toast('item deleted'); }
+        else { startVote('vice', label, label); }
+        return; }
       if(e.target.closest('#addViceBtn')){ $('viceNew').value=''; $('viceModal').classList.add('open'); setTimeout(()=>$('viceNew').focus(),100); return; }
       const v=e.target.closest('[data-vice]'); if(!v||viceEditMode) return;
       const label=v.dataset.vice; const mine=await getMyAtt()||{}; const vs={...(mine.vices||{})}; vs[label]=!vs[label]; v.classList.toggle('on',vs[label]); await saveMyAtt({vices:vs});
@@ -1103,6 +1180,7 @@ function startApp(){
     $('spotUseLoc').onclick=()=>{ if(!navigator.geolocation){ toast('no GPS'); return; } $('spotUseLoc').innerHTML='<span class="spinner"></span> locating…'; navigator.geolocation.getCurrentPosition(pos=>{ pendingSpotLoc={lat:pos.coords.latitude,lng:pos.coords.longitude}; $('spotLocLabel').textContent='📍 location captured'; $('spotUseLoc').textContent='📍 update location'; }, ()=>{ toast('location blocked'); $('spotUseLoc').textContent='📍 use my current location'; }); };
     $('spotCancel').onclick=()=>$('spotModal').classList.remove('open');
     $('spotVoteDelete').onclick=async ()=>{ if(!editingSpot) return; const s=SPOTS.find(x=>x.id===editingSpot); $('spotModal').classList.remove('open'); startVote('spot', editingSpot, s?s.name:'spot'); };
+    $('spotAdminDelete').onclick=async ()=>{ if(!editingSpot||!isAdmin()) return; const s=SPOTS.find(x=>x.id===editingSpot); if(!confirm(`Delete "${s?s.name:'this spot'}" now?`)) return; await deleteDoc(doc(db,'spots',editingSpot)); await pushFeed('🗑️', `${ME.name} deleted the spot "${s?s.name:''}"`); $('spotModal').classList.remove('open'); toast('spot deleted'); };
     $('spotSave').onclick=async ()=>{
       const emoji=$('spotEmoji').value.trim()||'📍'; const name=$('spotName').value.trim(); if(!name){ toast('name the spot'); return; }
       const data={emoji,name}; if(pendingSpotLoc){ data.lat=pendingSpotLoc.lat; data.lng=pendingSpotLoc.lng; }
@@ -1130,6 +1208,7 @@ function startApp(){
     $('spotLocLabel').textContent = (spot&&spot.lat)?'📍 has a saved location':'';
     $('spotUseLoc').textContent = (spot&&spot.lat)?'📍 update location':'📍 use my current location';
     $('spotVoteDelete').style.display = spot ? 'block' : 'none';
+    $('spotAdminDelete').style.display = (spot && isAdmin()) ? 'block' : 'none';
     $('spotModal').classList.add('open'); setTimeout(()=>$('spotName').focus(),100);
   }
 }
