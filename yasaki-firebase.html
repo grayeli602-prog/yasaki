@@ -719,7 +719,7 @@ function startApp(){
             ${canDel?`<button class="btn btn-leave btn-sm" data-evdel="${ev.id}" style="flex:none;padding:7px 11px;">✕</button>`:''}
           </div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <button class="btn ${iGo?'btn-green':'btn-ghost'} btn-sm" data-going="${ev.id}">${iGo?'✓ going':'i\\'m in'}</button>
+            <button class="btn ${iGo?'btn-green':'btn-ghost'} btn-sm" data-going="${ev.id}">${iGo?'✓ going':'count me in'}</button>
             <span class="am" style="color:var(--ink-dim);font-weight:700;">${names.length?names.length+' going: '+names.map(esc).join(', '):'no one yet'}</span>
           </div>
         </div>`;
