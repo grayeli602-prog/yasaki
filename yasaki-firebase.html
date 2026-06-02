@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
   :root{
@@ -21,11 +22,16 @@
     --shadow:0 12px 32px rgba(25,25,55,.10);--radius:20px;
     --fdisp:'Fredoka',sans-serif;--fbody:'Nunito',sans-serif;
   }
+  html[data-theme="dark"]{
+    --bg:#15141a;--bg2:#1d1c24;--card:#1f1e27;--card2:#2a2933;--line:#34323e;
+    --ink:#f1eef5;--ink-dim:#a9a6b6;--ink-faint:#6f6c7d;
+    --shadow:0 12px 32px rgba(0,0,0,.45);
+  }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
   button,.hero-card,.hcard,.spot-pick,.vice,.switch,.me-chip,.chip-d b,.brand{
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--fbody);-webkit-text-size-adjust:100%;}
-  body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom);background:
+  body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom);transition:background .25s,color .25s;background:
       radial-gradient(600px 380px at 92% -8%, rgba(255,94,160,.14), transparent 60%),
       radial-gradient(560px 420px at -8% 8%, rgba(59,141,255,.12), transparent 60%),
       radial-gradient(620px 460px at 50% 115%, rgba(35,197,94,.10), transparent 60%),var(--bg);}
@@ -34,14 +40,20 @@
   .view.active{display:block;}
   @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
   @keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:none;opacity:1;}}
-  .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:8px;
     padding:calc(14px + env(safe-area-inset-top)) 0 12px;margin-bottom:6px;background:linear-gradient(var(--bg) 74%, transparent);}
   .brand{display:flex;align-items:center;cursor:pointer;}
   .brand .mark{font-family:var(--fdisp);font-weight:700;font-size:28px;letter-spacing:-.5px;line-height:1;}
+  .top-right{display:flex;align-items:center;gap:8px;}
+  .icon-btn{position:relative;width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--line);
+    display:grid;place-items:center;font-size:18px;cursor:pointer;box-shadow:var(--shadow);transition:transform .1s;}
+  .icon-btn:active{transform:scale(.9);}
+  .icon-btn .dot{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:999px;background:var(--pink);
+    color:#fff;font-family:var(--fdisp);font-weight:700;font-size:11px;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg);}
   .me-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
     padding:5px 12px 5px 5px;border-radius:999px;cursor:pointer;transition:transform .1s;box-shadow:var(--shadow);}
   .me-chip:active{transform:scale(.94);}
-  .me-chip .nm{font-size:13px;font-weight:700;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .me-chip .nm{font-size:13px;font-weight:700;max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;display:grid;place-items:center;
     font-family:var(--fdisp);font-weight:700;font-size:13px;color:#fff;flex:none;}
   .btn{width:100%;border:none;cursor:pointer;font-family:var(--fdisp);font-weight:600;border-radius:15px;
@@ -50,6 +62,7 @@
   .btn-orange{background:var(--orange);box-shadow:0 8px 20px rgba(255,138,57,.32);}
   .btn-green{background:var(--green);box-shadow:0 8px 20px rgba(35,197,94,.30);}
   .btn-blue{background:var(--blue);box-shadow:0 8px 20px rgba(59,141,255,.30);}
+  .btn-purple{background:var(--purple);box-shadow:0 8px 20px rgba(160,107,255,.30);}
   .btn-ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
   .btn-leave{background:transparent;color:var(--pink);border:1.5px solid var(--line);box-shadow:none;}
   .btn-sm{width:auto;padding:10px 16px;font-size:14px;border-radius:12px;}
@@ -84,7 +97,7 @@
   input::placeholder{color:var(--ink-faint);font-weight:600;}
   .spot-grid{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px;}
   .spot-pick{display:flex;align-items:center;gap:7px;background:var(--card);border:1.5px solid var(--line);
-    padding:11px 14px;border-radius:14px;cursor:pointer;font-size:15px;font-weight:700;transition:transform .08s,border-color .12s,background .12s;}
+    padding:11px 14px;border-radius:14px;cursor:pointer;font-size:15px;font-weight:700;transition:transform .08s,border-color .12s,background .12s;color:var(--ink);}
   .spot-pick .em{font-size:18px;}
   .spot-pick:active{transform:scale(.94);}
   .spot-pick.sel{border-color:var(--blue);background:rgba(59,141,255,.1);color:var(--blue);}
@@ -97,14 +110,16 @@
   .switch i{position:absolute;top:2.5px;left:2.5px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .15s;}
   .switch.on{background:var(--green);border-color:var(--green);}
   .switch.on i{left:23px;}
-  .vice-row{display:flex;gap:9px;margin-top:8px;}
-  .vice{flex:1;text-align:center;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:14px 6px;cursor:pointer;
-    font-family:var(--fdisp);font-weight:600;font-size:15px;color:var(--ink-faint);transition:transform .08s,background .12s,color .12s,border-color .12s;}
+  .vice-row{display:flex;gap:9px;margin-top:8px;flex-wrap:wrap;}
+  .vice{flex:1 1 64px;text-align:center;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:14px 6px;cursor:pointer;
+    font-family:var(--fdisp);font-weight:600;font-size:15px;color:var(--ink-faint);transition:transform .08s,background .12s,color .12s,border-color .12s;position:relative;}
   .vice:active{transform:scale(.93);}
-  .vice.on{color:#fff;}
+  .vice.on{color:#fff;background:var(--purple);border-color:var(--purple);}
   .vice.nic.on{background:var(--orange);border-color:var(--orange);}
   .vice.yart.on{background:var(--green);border-color:var(--green);}
   .vice.alc.on{background:var(--pink);border-color:var(--pink);}
+  .vice .vdel{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--pink);color:#fff;font-size:12px;display:none;place-items:center;border:2px solid var(--bg);}
+  .vice-row.editing .vice .vdel{display:grid;}
   .att{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:10px;animation:pop .24s both;box-shadow:var(--shadow);}
   .att .av{width:44px;height:44px;border-radius:12px;flex:none;}
   .att .av.avatar{font-size:16px;border-radius:12px;}
@@ -119,7 +134,7 @@
   .b-drive{background:var(--green);}
   .b-ride{background:var(--purple);}
   .v-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
-  .v-tag{font-family:var(--fdisp);font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px;color:#fff;}
+  .v-tag{font-family:var(--fdisp);font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px;color:#fff;background:var(--purple);}
   .v-tag.nic{background:var(--orange);}
   .v-tag.yart{background:var(--green);}
   .v-tag.alc{background:var(--pink);}
@@ -142,6 +157,27 @@
   .chips-in{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
   .chip-d{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;}
   .chip-d b{font-size:15px;cursor:pointer;color:var(--ink-faint);line-height:.7;}
+  #map{height:240px;border-radius:16px;border:1px solid var(--line);margin-top:6px;z-index:1;}
+  .leaflet-container{font-family:var(--fbody);background:var(--card2);}
+  .map-dot{border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+  .chat-box{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;padding:4px 2px;}
+  .msg{max-width:80%;padding:9px 13px;border-radius:15px;font-size:14px;font-weight:600;line-height:1.35;animation:pop .2s both;}
+  .msg .who{font-family:var(--fdisp);font-size:11px;font-weight:600;color:var(--ink-faint);margin-bottom:2px;}
+  .msg.them{align-self:flex-start;background:var(--card2);border:1px solid var(--line);border-bottom-left-radius:5px;}
+  .msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:5px;}
+  .msg.me .who{color:rgba(255,255,255,.7);}
+  .chat-input{display:flex;gap:8px;margin-top:10px;}
+  .feed-item{display:flex;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin-bottom:8px;box-shadow:var(--shadow);animation:pop .22s both;}
+  .feed-item .fi{font-size:20px;flex:none;}
+  .feed-item .ft{font-size:14px;font-weight:700;color:var(--ink);}
+  .feed-item .fd{font-size:12px;font-weight:600;color:var(--ink-faint);margin-top:2px;}
+  .feed-item.unread{border-color:var(--pink);}
+  .vote-card{background:linear-gradient(135deg,rgba(160,107,255,.1),var(--card));border:1.5px solid rgba(160,107,255,.35);
+    border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow);}
+  .vote-card .vt{font-family:var(--fdisp);font-weight:600;font-size:15px;}
+  .vote-card .vc{font-size:12px;font-weight:700;color:var(--purple);margin-top:3px;}
+  .vote-actions{display:flex;gap:8px;margin-top:10px;}
+  .tally{font-size:13px;font-weight:800;color:var(--ink-dim);margin-top:8px;}
   .media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px;}
   .media-grid .mthumb{position:relative;aspect-ratio:1;border-radius:13px;overflow:hidden;background:var(--card2);border:1px solid var(--line);}
   .media-grid .mthumb img,.media-grid .mthumb video{width:100%;height:100%;object-fit:cover;display:block;}
@@ -157,8 +193,8 @@
   .pfp-big{width:100px;height:100px;border-radius:26px;object-fit:cover;cursor:pointer;display:grid;place-items:center;
     font-family:var(--fdisp);font-weight:700;font-size:36px;color:#fff;border:3px solid var(--line);}
   .pfp-hint{font-family:var(--fdisp);font-weight:600;font-size:12px;color:var(--ink-faint);}
-  #toast{position:fixed;bottom:calc(26px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:#fff;
-    font-weight:700;font-size:14px;padding:12px 20px;border-radius:13px;z-index:200;transition:.2s;pointer-events:none;box-shadow:var(--shadow);}
+  #toast{position:fixed;bottom:calc(26px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);
+    font-weight:700;font-size:14px;padding:12px 20px;border-radius:13px;z-index:300;transition:.2s;pointer-events:none;box-shadow:var(--shadow);}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .modal{position:fixed;inset:0;background:rgba(20,20,40,.4);z-index:150;display:none;align-items:flex-end;justify-content:center;}
   .modal.open{display:flex;animation:rise .2s;}
@@ -190,8 +226,6 @@
   </label>
   <div class="toggle-row"><span class="tt">i have a car 🚗</span><div class="switch" id="onbCar"><i></i></div></div>
   <div class="toggle-row"><span class="tt">i have my license 🪪</span><div class="switch" id="onbLic"><i></i></div></div>
-  <span class="lab" style="margin-top:18px;">what you usually bring</span>
-  <div class="vice-row"><div class="vice nic" id="onbNic">nic</div><div class="vice yart" id="onbYart">yart</div><div class="vice alc" id="onbAlc">alc</div></div>
   <button class="btn btn-blue" id="onbGo" style="margin-top:24px;">create account</button>
   <input type="file" id="onbFile" accept="image/*" class="hidden-file">
 </div>
@@ -199,7 +233,11 @@
 <div id="app" class="wrap" style="display:none;">
   <div class="topbar">
     <div class="brand" id="goHome"><span class="mark"><span style="color:var(--green)">Y</span><span style="color:var(--blue)">A</span><span style="color:var(--pink)">S</span><span style="color:var(--orange)">A</span><span style="color:var(--green)">K</span><span style="color:var(--blue)">I</span></span></div>
-    <div class="me-chip" id="meChip"><span id="meAv" class="avatar"></span><span class="nm" id="meName"></span></div>
+    <div class="top-right">
+      <div class="icon-btn" id="bellBtn">🔔<span class="dot" id="bellDot" style="display:none;">0</span></div>
+      <div class="icon-btn" id="settingsBtn">⚙️</div>
+      <div class="me-chip" id="meChip"><span id="meAv" class="avatar"></span><span class="nm" id="meName"></span></div>
+    </div>
   </div>
 
   <div id="v-home" class="view active">
@@ -210,6 +248,23 @@
     <button id="btnCrew" class="btn btn-ghost">👥 see the whole crew</button>
     <div class="section-label">live hangouts <span id="liveCount" style="color:var(--ink-faint)"></span></div>
     <div id="homeList"></div>
+  </div>
+
+  <div id="v-feed" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">notifications</div>
+    <div id="feedList"></div>
+  </div>
+
+  <div id="v-settings" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">settings</div>
+    <div class="toggle-row"><span class="tt">🌙 dark mode</span><div class="switch" id="setDark"><i></i></div></div>
+    <div class="toggle-row"><span class="tt">🔔 in-app notifications</span><div class="switch" id="setNotif"><i></i></div></div>
+    <div class="toggle-row"><span class="tt">📳 buzz my phone (push)</span><div class="switch" id="setPush"><i></i></div></div>
+    <div class="note">phone buzz only works after you "Add to Home Screen" and tap Allow. iPhone is picky about this — if it doesn't take, the in-app bell still catches everything.</div>
+    <div class="section-label">your account</div>
+    <button class="btn btn-ghost" id="openAccount">edit name, photo, car & license</button>
   </div>
 
   <div id="v-friends" class="view">
@@ -244,6 +299,7 @@
         <label class="fld"><span class="lab">when you'll arrive</span><input type="time" id="myArrive"></label>
         <div class="toggle-row"><span class="tt">i can pick people up 🚗</span><div class="switch" id="myDrive"><i></i></div></div>
         <div class="toggle-row" id="needRideRow"><span class="tt">🙋 i need a ride</span><div class="switch" id="myNeedRide"><i></i></div></div>
+        <div class="toggle-row"><span class="tt">📍 share my location</span><div class="switch" id="myLoc"><i></i></div></div>
         <div id="bringWrap" style="display:none;">
           <span class="lab" style="margin-top:14px;">people you're bringing</span>
           <div style="display:flex;gap:8px;margin-top:8px;">
@@ -252,12 +308,24 @@
           </div>
           <div class="chips-in" id="bringChips"></div>
         </div>
-        <span class="lab" style="margin-top:16px;">bringing</span>
-        <div class="vice-row"><div class="vice nic" id="vNic">nic</div><div class="vice yart" id="vYart">yart</div><div class="vice alc" id="vAlc">alc</div></div>
+        <div class="row-between" style="margin-top:16px;"><span class="lab" style="margin:0;">bringing</span><button id="editViceBtn" class="btn btn-ghost btn-sm" style="padding:6px 11px;font-size:12px;">＋ / edit</button></div>
+        <div class="vice-row" id="viceRow"></div>
         <button class="btn btn-leave" id="leaveBtn" style="margin-top:14px;">leave hangout</button>
         <div style="font-family:var(--fdisp);font-weight:600;font-size:12px;color:var(--ink-faint);margin-top:10px;">changes save automatically ✓</div>
       </div>
     </div>
+
+    <div class="section-label">map</div>
+    <div id="map"></div>
+    <div class="note" id="mapNote">flip "share my location" above to drop your dot. spot pin shows where it's at.</div>
+
+    <div class="section-label">group chat</div>
+    <div class="chat-box" id="chatBox"></div>
+    <div class="chat-input">
+      <input type="text" id="chatIn" placeholder="message the crew" maxlength="300">
+      <button class="btn btn-blue btn-sm" id="chatSend" style="flex:none;">send</button>
+    </div>
+
     <div class="section-label">rides</div>
     <div id="ridesBox"></div>
     <div class="section-label">who's coming <span id="detCount" style="color:var(--ink-faint)"></span></div>
@@ -277,8 +345,6 @@
     <label class="fld"><span class="lab">name</span><input type="text" id="editName" maxlength="22"></label>
     <div class="toggle-row"><span class="tt">i have a car 🚗</span><div class="switch" id="editCar"><i></i></div></div>
     <div class="toggle-row"><span class="tt">i have my license 🪪</span><div class="switch" id="editLic"><i></i></div></div>
-    <span class="lab" style="margin-top:18px;">what you usually bring</span>
-    <div class="vice-row"><div class="vice nic" id="editNic">nic</div><div class="vice yart" id="editYart">yart</div><div class="vice alc" id="editAlc">alc</div></div>
     <div style="display:flex;gap:10px;margin-top:22px;"><button class="btn btn-ghost" id="profCancel">cancel</button><button class="btn btn-blue" id="profSave">save</button></div>
     <input type="file" id="editFile" accept="image/*" class="hidden-file">
   </div>
@@ -289,16 +355,30 @@
     <h3 id="spotModalTitle">add a new spot</h3>
     <label class="fld"><span class="lab">emoji</span><input type="text" id="spotEmoji" placeholder="🍻" maxlength="4" style="font-size:24px;text-align:center;"></label>
     <label class="fld"><span class="lab">spot name</span><input type="text" id="spotName" placeholder="the bridge" maxlength="26"></label>
-    <button class="btn btn-leave" id="spotDelete" style="display:none;margin-top:18px;">delete this spot</button>
+    <label class="fld"><span class="lab">location (optional)</span>
+      <button class="btn btn-ghost btn-sm" id="spotUseLoc" style="width:100%;">📍 use my current location</button>
+    </label>
+    <div id="spotLocLabel" class="note"></div>
+    <button class="btn btn-purple" id="spotVoteDelete" style="display:none;margin-top:18px;">🗳️ start vote to delete</button>
     <div style="display:flex;gap:10px;margin-top:14px;"><button class="btn btn-ghost" id="spotCancel">cancel</button><button class="btn btn-orange" id="spotSave">save</button></div>
+  </div>
+</div>
+
+<div class="modal" id="viceModal">
+  <div class="sheet">
+    <h3>add a bring-item</h3>
+    <label class="fld"><span class="lab">short label (like "food")</span><input type="text" id="viceNew" placeholder="food" maxlength="10"></label>
+    <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-ghost" id="viceCancel">cancel</button><button class="btn btn-green" id="viceSave">add it</button></div>
+    <div class="note" style="margin-top:14px;">to delete an item the whole crew uses, the ✕ in edit mode starts a 4-hour vote.</div>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, updateDoc, deleteDoc }
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, updateDoc, deleteDoc, addDoc, query, orderBy, limit }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
@@ -314,8 +394,8 @@ const firebaseConfig = {
 };
 /* ⬆⬆⬆  YOUR FIREBASE CONFIG  ⬆⬆⬆ */
 
-/* Photos/videos need Firebase Storage. Flip to true AFTER you enable Storage. */
 const STORAGE_ENABLED = false;
+const VOTE_HOURS = 4;
 
 const $ = id => document.getElementById(id);
 
@@ -330,8 +410,12 @@ function startApp(){
   const AVATAR_COLORS = ['#23c55e','#3b8dff','#ff5ea0','#ff8a39','#a06bff','#ffc23d','#2dd4bf'];
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
-  let ME=null, SPOTS=[], CURRENT=null, pendingPfp=null, decSel=null, spotEditMode=false, editingSpot=null;
-  let unsubHome=null, unsubAtt=null, unsubMedia=null, unsubHangout=null, unsubSpots=null;
+  let ME=null, SPOTS=[], VICES=[], CURRENT=null, pendingPfp=null, decSel=null, spotEditMode=false, viceEditMode=false, editingSpot=null, pendingSpotLoc=null;
+  let map=null, spotMarker=null, peopleMarkers={}, locWatch=null;
+  let unsubHome=null, unsubAtt=null, unsubMedia=null, unsubHangout=null, unsubSpots=null, unsubChat=null, unsubVotes=null, unsubFeed=null, unsubVices=null;
+  let prefs = JSON.parse(localStorage.getItem('yasaki_prefs')||'{"dark":false,"notif":true,"push":false}');
+  let lastSeenFeed = +(localStorage.getItem('yasaki_seenfeed')||0);
+  let knownFeed = new Set();
 
   function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
   function initials(n){ return (n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase()||'?'; }
@@ -340,13 +424,27 @@ function startApp(){
   function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
   function fmtTime(t){ if(!t) return ''; const [H,M]=t.split(':').map(Number); const ap=H>=12?'pm':'am'; const h=((H+11)%12)+1; return `${h}:${String(M).padStart(2,'0')}${ap}`; }
   function roundedNow(){ const d=new Date(); d.setMinutes(Math.ceil(d.getMinutes()/15)*15); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function ago(t){ const s=(Date.now()-t)/1000; if(s<60)return 'just now'; if(s<3600)return Math.floor(s/60)+'m ago'; if(s<86400)return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
   function resizeImage(file,max,q){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{ let {width:w,height:h}=img; if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;} const c=document.createElement('canvas'); c.width=w;c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); res(c.toDataURL('image/jpeg',q)); }; img.onerror=rej; img.src=r.result; }; r.onerror=rej; r.readAsDataURL(file); }); }
   function dataURLToBlob(d){ const [hd,b]=d.split(','); const mime=hd.match(/:(.*?);/)[1]; const bin=atob(b); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return new Blob([u],{type:mime}); }
   function toggle(el){ el.onclick=()=>el.classList.toggle('on'); }
+  function applyTheme(){ document.documentElement.setAttribute('data-theme', prefs.dark?'dark':'light'); }
+  function savePrefs(){ localStorage.setItem('yasaki_prefs', JSON.stringify(prefs)); }
+
+  /* ---- notifications ---- */
+  async function pushFeed(icon, text){
+    try{ await addDoc(collection(db,'feed'), {icon, text, t:Date.now()}); }catch(e){}
+  }
+  function localNotify(text){
+    if(!prefs.push) return;
+    try{ if('Notification' in window && Notification.permission==='granted'){ new Notification('Yasaki', {body:text}); } }catch(e){}
+  }
+
+  applyTheme();
 
   (async function boot(){
     ME = JSON.parse(localStorage.getItem('yasaki_me')||'null');
-    await ensureSpots();
+    await ensureSpots(); await ensureVices();
     wireOnboarding(); wireApp();
     if(ME){ enterApp(); } else { $('onboarding').style.display='flex'; }
   })();
@@ -359,35 +457,70 @@ function startApp(){
     }
     unsubSpots = onSnapshot(collection(db,'spots'), s=>{ SPOTS=s.docs.map(d=>({id:d.id,...d.data()})); if($('v-declare').classList.contains('active')) renderSpotGrid(); });
   }
-
-  function enterApp(){ $('onboarding').style.display='none'; $('app').style.display='block'; renderMeChip(); setupMediaUI(); showView('home'); listenHome(); }
-  function setupMediaUI(){
-    if(STORAGE_ENABLED) return;
-    $('addMedia').style.display='none';
-    $('mediaGrid').innerHTML='';
-    const note=document.querySelector('#v-detail .note');
-    if(note) note.textContent='photos & videos are off for now — turn on Firebase Storage later to switch them on.';
+  async function ensureVices(){
+    const snap = await getDocs(collection(db,'vices'));
+    if(snap.empty){
+      for(const v of [{label:'nic',cls:'nic',order:1},{label:'yart',cls:'yart',order:2},{label:'alc',cls:'alc',order:3}]) await setDoc(doc(db,'vices',v.label), v);
+    }
+    unsubVices = onSnapshot(collection(db,'vices'), s=>{ VICES=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||99)-(b.order||99)); if($('joinedBox').style.display==='block') refreshViceRow(); });
   }
+
+  function enterApp(){
+    $('onboarding').style.display='none'; $('app').style.display='block';
+    renderMeChip(); setupMediaUI(); applyPrefUI();
+    showView('home'); listenHome(); listenFeed();
+    if(prefs.push) requestPush(true);
+  }
+  function setupMediaUI(){ if(STORAGE_ENABLED) return; $('addMedia').style.display='none'; $('mediaGrid').innerHTML=''; const note=document.querySelectorAll('#v-detail .note'); if(note[note.length-1]) note[note.length-1].textContent='photos & videos are off for now — turn on Firebase Storage later.'; }
+  function applyPrefUI(){ $('setDark').classList.toggle('on',prefs.dark); $('setNotif').classList.toggle('on',prefs.notif); $('setPush').classList.toggle('on',prefs.push); }
   function renderMeChip(){ $('meAv').outerHTML=avatarHTML(ME,'avatar'); $('meName').textContent=ME.name; }
   function showView(n){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $('v-'+n).classList.add('active'); window.scrollTo(0,0); }
+
+  function profileDoc(){ return {name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense}; }
 
   function wireOnboarding(){
     $('onbPfp').onclick=()=>$('onbFile').click();
     $('onbFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const d=await resizeImage(f,220,.72); pendingPfp=d; $('onbPfp').style.background='transparent'; $('onbPfp').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`; };
     $('onbName').oninput=e=>{ if(!pendingPfp){ const n=e.target.value; $('onbPfp').style.background=colorFor(n); $('onbPfp').textContent=initials(n); } };
     ['onbCar','onbLic'].forEach(id=>toggle($(id)));
-    ['onbNic','onbYart','onbAlc'].forEach(id=>toggle($(id)));
     $('onbGo').onclick=async ()=>{
       const name=$('onbName').value.trim(); if(!name){ toast('drop your name first'); return; }
-      ME={ id:uid(), name, pfp:pendingPfp||null,
-        hasCar:$('onbCar').classList.contains('on'), hasLicense:$('onbLic').classList.contains('on'),
-        nic:$('onbNic').classList.contains('on'), yart:$('onbYart').classList.contains('on'), alc:$('onbAlc').classList.contains('on') };
+      ME={ id:uid(), name, pfp:pendingPfp||null, hasCar:$('onbCar').classList.contains('on'), hasLicense:$('onbLic').classList.contains('on') };
       localStorage.setItem('yasaki_me',JSON.stringify(ME));
       await setDoc(doc(db,'users',ME.id), profileDoc());
       enterApp();
     };
   }
-  function profileDoc(){ return {name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense,nic:!!ME.nic,yart:!!ME.yart,alc:!!ME.alc}; }
+
+  /* ---- feed / bell ---- */
+  function listenFeed(){
+    if(unsubFeed) unsubFeed();
+    const qy=query(collection(db,'feed'), orderBy('t','desc'), limit(40));
+    unsubFeed=onSnapshot(qy, snap=>{
+      const items=snap.docs.map(d=>({id:d.id,...d.data()}));
+      let unread=0;
+      items.forEach(it=>{ if(it.t>lastSeenFeed) unread++; if(!knownFeed.has(it.id)){ knownFeed.add(it.id); if(it.t>lastSeenFeed && it.t>Date.now()-15000){ localNotify(it.text); } } });
+      const dot=$('bellDot');
+      if(prefs.notif && unread>0){ dot.style.display='grid'; dot.textContent=unread>9?'9+':unread; } else dot.style.display='none';
+      if($('v-feed').classList.contains('active')) renderFeed(items);
+    });
+  }
+  function renderFeed(items){
+    const wrap=$('feedList');
+    if(!items.length){ wrap.innerHTML=`<div class="empty">nothing yet.</div>`; return; }
+    wrap.innerHTML=items.map(it=>`<div class="feed-item ${it.t>lastSeenFeed?'unread':''}"><div class="fi">${it.icon||'🔔'}</div><div><div class="ft">${esc(it.text)}</div><div class="fd">${ago(it.t)}</div></div></div>`).join('');
+  }
+  function openFeed(){ lastSeenFeed=Date.now(); localStorage.setItem('yasaki_seenfeed',lastSeenFeed); $('bellDot').style.display='none'; showView('feed'); getDocs(query(collection(db,'feed'),orderBy('t','desc'),limit(40))).then(s=>renderFeed(s.docs.map(d=>({id:d.id,...d.data()})))); }
+
+  async function requestPush(silent){
+    if(!('Notification' in window)){ if(!silent) toast('this browser has no push'); prefs.push=false; applyPrefUI(); savePrefs(); return; }
+    try{
+      const perm = await Notification.requestPermission();
+      if(perm==='granted'){ prefs.push=true; if(!silent) toast('phone buzz on 📳'); }
+      else { prefs.push=false; if(!silent) toast('permission denied'); }
+    }catch(e){ prefs.push=false; if(!silent) toast('couldn\'t enable'); }
+    applyPrefUI(); savePrefs();
+  }
 
   function listenHome(){
     if(unsubHome) unsubHome();
@@ -412,8 +545,7 @@ function startApp(){
       $('crewList').innerHTML=users.map(u=>{
         const isMe=u.id===ME.id;
         const mini=[u.hasCar?'🚗 car':'',u.hasLicense?'🪪 licensed':''].filter(Boolean).join(' · ');
-        const vt=[u.nic?'<span class="v-tag nic">nic</span>':'',u.yart?'<span class="v-tag yart">yart</span>':'',u.alc?'<span class="v-tag alc">alc</span>':''].join('');
-        return `<div class="att">${avatarHTML(u,'av avatar')}<div class="ab"><div class="an">${esc(u.name)}${isMe?'<span class="badge b-you">you</span>':''}</div>${mini?`<div class="am">${mini}</div>`:''}${vt?`<div class="v-tags">${vt}</div>`:''}</div></div>`;
+        return `<div class="att">${avatarHTML(u,'av avatar')}<div class="ab"><div class="an">${esc(u.name)}${isMe?'<span class="badge b-you">you</span>':''}</div>${mini?`<div class="am">${mini}</div>`:''}</div></div>`;
       }).join('');
     }).catch(()=>{ $('crewList').innerHTML=`<div class="empty">couldn't load the crew.</div>`; });
   }
@@ -425,44 +557,100 @@ function startApp(){
   }
   function openDeclare(){ decSel=null; spotEditMode=false; $('editSpotsBtn').textContent='✏️ edit spots'; $('decTime').value=roundedNow(); $('decDrive').classList.remove('on'); renderSpotGrid(); showView('declare'); }
 
+  /* ---- vices (bring-items) ---- */
+  function refreshViceRow(){
+    const row=$('viceRow'); row.classList.toggle('editing', viceEditMode);
+    getMyAtt().then(mine=>{
+      const on=(mine&&mine.vices)?mine.vices:{};
+      row.innerHTML = VICES.map(v=>`<div class="vice ${v.cls||''} ${on[v.label]?'on':''}" data-vice="${esc(v.label)}">${esc(v.label)}<span class="vdel" data-vdel="${esc(v.label)}">✕</span></div>`).join('')
+        + (viceEditMode?`<div class="vice" id="addViceBtn" style="color:var(--ink-faint);">＋</div>`:'');
+    });
+  }
+
   function openHangout(id){
     CURRENT=id;
     if(unsubHangout) unsubHangout();
     unsubHangout = onSnapshot(doc(db,'hangouts',id), d=>{
       if(!d.exists()){ toast('this hangout ended'); leaveDetail(); showView('home'); return; }
-      const h=d.data(); $('detEmoji').textContent=h.emoji; $('detName').textContent=h.name; $('detTime').textContent=fmtTime(h.time); $('detHost').textContent=h.hostName; $('v-detail').dataset.host=h.hostId;
+      const h=d.data(); $('detEmoji').textContent=h.emoji; $('detName').textContent=h.name; $('detTime').textContent=fmtTime(h.time); $('detHost').textContent=h.hostName; $('v-detail').dataset.host=h.hostId; $('v-detail').dataset.spotid=h.spotId||'';
+      setupMap(h);
     });
     if(unsubAtt) unsubAtt();
     unsubAtt = onSnapshot(collection(db,'hangouts',id,'attendees'), snap=>{
       const atts=snap.docs.map(d=>({userId:d.id,...d.data()})).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));
       const hostId=$('v-detail').dataset.host;
       const mine=atts.find(a=>a.userId===ME.id); renderMyCard(mine);
-      renderRides(atts, mine);
+      renderRides(atts, mine); updatePeopleMarkers(atts);
       $('detCount').textContent=atts.length?`(${atts.length})`:'';
       const list=$('attList');
       if(!atts.length){ list.innerHTML=`<div class="empty">no one's pulled up yet.</div>`; return; }
       list.innerHTML=atts.map(a=>{
         const isMe=a.userId===ME.id, isHost=a.userId===hostId;
         const mini=[a.hasCar?'🚗 car':'', a.hasLicense?'🪪 licensed':''].filter(Boolean).join(' · ');
-        const vt=[a.nic?'<span class="v-tag nic">nic</span>':'',a.yart?'<span class="v-tag yart">yart</span>':'',a.alc?'<span class="v-tag alc">alc</span>':''].join('');
+        const vt=Object.keys(a.vices||{}).filter(k=>a.vices[k]).map(k=>{const v=VICES.find(x=>x.label===k);return `<span class="v-tag ${v?v.cls:''}">${esc(k)}</span>`;}).join('');
         const br=(a.bringing&&a.bringing.length)?`<div class="bringing">bringing: <b>${a.bringing.map(esc).join(', ')}</b></div>`:'';
         return `<div class="att">${avatarHTML(a,'av avatar')}<div class="ab"><div class="an">${esc(a.name)}${isMe?'<span class="badge b-you">you</span>':''}${isHost?'<span class="badge b-host">host</span>':''}${a.driver?'<span class="badge b-drive">🚗 driving</span>':''}${a.needsRide&&!a.rideWith?'<span class="badge b-ride">🙋 needs ride</span>':''}</div><div class="am">arriving <span class="arr">${fmtTime(a.arrive)||'—'}</span>${mini?` · <span class="mini">${mini}</span>`:''}</div>${vt?`<div class="v-tags">${vt}</div>`:''}${br}</div></div>`;
       }).join('');
+    });
+    // chat
+    if(unsubChat) unsubChat();
+    unsubChat=onSnapshot(query(collection(db,'hangouts',id,'chat'),orderBy('t','asc'),limit(100)), snap=>{
+      const box=$('chatBox'); const msgs=snap.docs.map(d=>d.data());
+      if(!msgs.length){ box.innerHTML=`<div class="empty" style="padding:14px;">no messages yet — say something 👋</div>`; return; }
+      box.innerHTML=msgs.map(m=>`<div class="msg ${m.uid===ME.id?'me':'them'}">${m.uid===ME.id?'':`<div class="who">${esc(m.name)}</div>`}${esc(m.text)}</div>`).join('');
+      box.scrollTop=box.scrollHeight;
     });
     if(STORAGE_ENABLED){
       if(unsubMedia) unsubMedia();
       unsubMedia = onSnapshot(collection(db,'hangouts',id,'media'), snap=>{
         const photos=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.t||0)-(a.t||0));
-        const grid=$('mediaGrid');
-        grid.innerHTML=photos.map(p=> p.type==='video'
+        $('mediaGrid').innerHTML=photos.map(p=> p.type==='video'
           ? `<div class="mthumb"><video src="${p.url}" muted playsinline preload="metadata"></video><div class="play">▶</div><a class="dl" href="${p.url}" target="_blank" rel="noopener">⤓</a></div>`
           : `<div class="mthumb"><img src="${p.url}" alt=""><a class="dl" href="${p.url}" target="_blank" rel="noopener" download>⤓</a></div>`
         ).join('');
       });
     }
+    refreshViceRow();
     showView('detail');
   }
-  function leaveDetail(){ if(unsubAtt)unsubAtt(); if(unsubMedia)unsubMedia(); if(unsubHangout)unsubHangout(); unsubAtt=unsubMedia=unsubHangout=null; CURRENT=null; }
+  function leaveDetail(){ [unsubAtt,unsubMedia,unsubHangout,unsubChat].forEach(u=>u&&u()); unsubAtt=unsubMedia=unsubHangout=unsubChat=null; stopSharingLoc(); CURRENT=null; }
+
+  /* ---- map ---- */
+  function setupMap(h){
+    if(!window.L) return;
+    if(!map){
+      map=L.map('map',{attributionControl:false,zoomControl:true}).setView([39.768,-86.158],12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+      setTimeout(()=>map.invalidateSize(),200);
+    }
+    if(spotMarker){ map.removeLayer(spotMarker); spotMarker=null; }
+    if(h.lat && h.lng){
+      spotMarker=L.marker([h.lat,h.lng]).addTo(map).bindPopup(`${h.emoji} ${esc(h.name)}`);
+      map.setView([h.lat,h.lng],14);
+      $('mapNote').innerHTML=`spot is set 📍 · <a href="https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}" target="_blank" rel="noopener" style="color:var(--blue);font-weight:800;">get directions</a>`;
+    } else {
+      $('mapNote').textContent='this spot has no saved location yet. add one when editing the spot. your dots still show if you share location.';
+    }
+    setTimeout(()=>map&&map.invalidateSize(),250);
+  }
+  function dotIcon(person){
+    const bg=person.pfp?`url(${person.pfp}) center/cover`:colorFor(person.name);
+    const txt=person.pfp?'':initials(person.name);
+    return L.divIcon({className:'',html:`<div class="map-dot" style="width:30px;height:30px;background:${bg};display:grid;place-items:center;color:#fff;font-family:'Fredoka';font-weight:700;font-size:11px;">${txt}</div>`,iconSize:[30,30],iconAnchor:[15,15]});
+  }
+  function updatePeopleMarkers(atts){
+    if(!map) return;
+    const live={};
+    atts.forEach(a=>{ if(a.lat&&a.lng){ live[a.userId]=a; if(peopleMarkers[a.userId]){ peopleMarkers[a.userId].setLatLng([a.lat,a.lng]).setIcon(dotIcon(a)); } else { peopleMarkers[a.userId]=L.marker([a.lat,a.lng],{icon:dotIcon(a)}).addTo(map).bindPopup(esc(a.name)); } } });
+    Object.keys(peopleMarkers).forEach(id=>{ if(!live[id]){ map.removeLayer(peopleMarkers[id]); delete peopleMarkers[id]; } });
+  }
+  function startSharingLoc(){
+    if(!navigator.geolocation){ toast('no GPS here'); $('myLoc').classList.remove('on'); return; }
+    locWatch=navigator.geolocation.watchPosition(async pos=>{
+      await saveMyAtt({lat:pos.coords.latitude, lng:pos.coords.longitude});
+    }, err=>{ toast('location blocked'); $('myLoc').classList.remove('on'); saveMyAtt({lat:null,lng:null}); }, {enableHighAccuracy:true, maximumAge:10000, timeout:15000});
+  }
+  function stopSharingLoc(){ if(locWatch!=null){ navigator.geolocation.clearWatch(locWatch); locWatch=null; } }
 
   function renderRides(atts, mine){
     const box=$('ridesBox');
@@ -472,8 +660,7 @@ function startApp(){
     if(!need.length && !assigned.length){ box.innerHTML=`<div class="empty" style="padding:18px;">no ride requests yet.${(mine&&!mine.driver)?'<br>need one? flip "i need a ride" above.':''}</div>`; return; }
     let html=need.map(a=>{
       const isMe=a.userId===ME.id;
-      const right = (iDrive && !isMe) ? `<button class="btn btn-green btn-sm" data-grab="${a.userId}" data-rname="${esc(a.name)}">i got them</button>`
-                  : (isMe ? `<span class="ride-wait">waiting…</span>` : '');
+      const right = (iDrive && !isMe) ? `<button class="btn btn-green btn-sm" data-grab="${a.userId}" data-rname="${esc(a.name)}">i got them</button>` : (isMe ? `<span class="ride-wait">waiting…</span>` : '');
       return `<div class="ride-row"><span class="rl">🙋 <b>${esc(a.name)}</b> needs a ride</span>${right}</div>`;
     }).join('');
     html+=assigned.map(a=>`<div class="ride-row done"><span class="rl">✅ <b>${esc(a.name)}</b> riding with ${esc(a.rideWith)}</span></div>`).join('');
@@ -489,18 +676,52 @@ function startApp(){
     $('bringWrap').style.display=drv?'block':'none';
     $('needRideRow').style.display=drv?'none':'flex';
     $('myNeedRide').classList.toggle('on',!!mine.needsRide);
+    $('myLoc').classList.toggle('on', !!(mine.lat&&mine.lng));
     renderBringChips(mine.bringing||[]);
-    $('vNic').classList.toggle('on',!!mine.nic); $('vYart').classList.toggle('on',!!mine.yart); $('vAlc').classList.toggle('on',!!mine.alc);
+    refreshViceRow();
   }
   function renderBringChips(arr){ $('bringChips').innerHTML=arr.map((n,i)=>`<span class="chip-d">${esc(n)} <b data-del="${i}">×</b></span>`).join(''); }
 
   async function myAttRef(){ return doc(db,'hangouts',CURRENT,'attendees',ME.id); }
-  async function getMyAtt(){ const s=await getDoc(await myAttRef()); return s.exists()?s.data():null; }
+  async function getMyAtt(){ if(!CURRENT) return null; const s=await getDoc(await myAttRef()); return s.exists()?s.data():null; }
   async function saveMyAtt(patch){
-    const base={name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense,joinedAt:Date.now(),arrive:'',driver:false,needsRide:false,rideWith:null,bringing:[],nic:!!ME.nic,yart:!!ME.yart,alc:!!ME.alc};
+    const base={name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense,joinedAt:Date.now(),arrive:'',driver:false,needsRide:false,rideWith:null,bringing:[],vices:{},lat:null,lng:null};
     const cur = await getMyAtt() || base;
     const next={...cur, name:ME.name, pfp:ME.pfp||null, hasCar:!!ME.hasCar, hasLicense:!!ME.hasLicense, ...patch};
     await setDoc(await myAttRef(), next); return next;
+  }
+
+  /* ---- votes ---- */
+  function listenVotes(){
+    if(unsubVotes) unsubVotes();
+    unsubVotes=onSnapshot(collection(db,'votes'), snap=>{
+      const now=Date.now();
+      snap.docs.forEach(async d=>{
+        const v={id:d.id,...d.data()};
+        if(v.deadline<=now && !v.resolved){
+          const yes=Object.values(v.ballots||{}).filter(x=>x==='yes').length;
+          const no=Object.values(v.ballots||{}).filter(x=>x==='no').length;
+          await updateDoc(doc(db,'votes',v.id),{resolved:true});
+          if(yes>no){
+            if(v.kind==='spot') await deleteDoc(doc(db,'spots',v.targetId)).catch(()=>{});
+            if(v.kind==='vice') await deleteDoc(doc(db,'vices',v.targetId)).catch(()=>{});
+            if(v.kind==='hangout') await deleteDoc(doc(db,'hangouts',v.targetId)).catch(()=>{});
+            await pushFeed('🗑️', `vote passed — "${v.targetName}" deleted (${yes}–${no})`);
+          } else {
+            await pushFeed('🛡️', `vote failed — "${v.targetName}" stays (${yes}–${no})`);
+          }
+        }
+      });
+      // show open votes as toast badge count could go here; we render in settings/feed via feed entries
+    });
+  }
+  async function startVote(kind, targetId, targetName){
+    const existing=await getDocs(collection(db,'votes'));
+    if(existing.docs.some(d=>{const v=d.data();return v.kind===kind&&v.targetId===targetId&&!v.resolved;})){ toast('vote already running'); return; }
+    const id=uid();
+    await setDoc(doc(db,'votes',id),{kind,targetId,targetName,by:ME.name,deadline:Date.now()+VOTE_HOURS*3600000,ballots:{[ME.id]:'yes'},resolved:false});
+    await pushFeed('🗳️', `${ME.name} started a vote to delete "${targetName}" — ${VOTE_HOURS}h to vote in the bell`);
+    toast('vote started 🗳️');
   }
 
   function wireApp(){
@@ -509,8 +730,17 @@ function startApp(){
     $('btnDeclare').onclick=openDeclare;
     $('btnJoinList').onclick=()=>{ showView('home'); toast('tap a live hangout to join'); };
     $('btnCrew').onclick=openFriends;
+    $('bellBtn').onclick=openFeed;
+    $('settingsBtn').onclick=()=>showView('settings');
     $('homeList').onclick=e=>{ const c=e.target.closest('[data-open]'); if(c) openHangout(c.dataset.open); };
 
+    // settings toggles
+    $('setDark').onclick=()=>{ prefs.dark=!prefs.dark; $('setDark').classList.toggle('on',prefs.dark); applyTheme(); savePrefs(); };
+    $('setNotif').onclick=()=>{ prefs.notif=!prefs.notif; $('setNotif').classList.toggle('on',prefs.notif); savePrefs(); if(!prefs.notif) $('bellDot').style.display='none'; };
+    $('setPush').onclick=()=>{ if(!prefs.push){ requestPush(false); } else { prefs.push=false; applyPrefUI(); savePrefs(); toast('phone buzz off'); } };
+    $('openAccount').onclick=openProfile;
+
+    // spots
     $('editSpotsBtn').onclick=()=>{ spotEditMode=!spotEditMode; $('editSpotsBtn').textContent=spotEditMode?'✓ done':'✏️ edit spots'; renderSpotGrid(); if(spotEditMode) toast('tap a spot to edit it'); };
     $('spotGrid').onclick=e=>{
       if(e.target.closest('#addSpotBtn')){ openSpotModal(null); return; }
@@ -524,19 +754,22 @@ function startApp(){
       const spot=SPOTS.find(s=>s.id===decSel); const time=$('decTime').value;
       if(!time){ toast('set a start time'); return; }
       const id=uid(); const drive=$('decDrive').classList.contains('on');
-      await setDoc(doc(db,'hangouts',id),{name:spot.name,emoji:spot.emoji,time,hostId:ME.id,hostName:ME.name,createdAt:Date.now()});
+      await setDoc(doc(db,'hangouts',id),{name:spot.name,emoji:spot.emoji,spotId:spot.id,lat:spot.lat||null,lng:spot.lng||null,time,hostId:ME.id,hostName:ME.name,createdAt:Date.now()});
       CURRENT=id; await saveMyAtt({arrive:time, driver:drive, needsRide:false});
+      await pushFeed('🔥', `${ME.name} declared a hangout at ${spot.name} (${fmtTime(time)})`);
       toast('declared 🔥'); openHangout(id);
     };
 
-    $('joinNow').onclick=async ()=>{ await saveMyAtt({arrive:roundedNow()}); toast('you pulled up ✓'); };
+    $('joinNow').onclick=async ()=>{ await saveMyAtt({arrive:roundedNow()}); const h=$('detName').textContent; await pushFeed('🙌', `${ME.name} joined the hangout at ${h}`); toast('you pulled up ✓'); };
     $('myArrive').onchange=async ()=>{ await saveMyAtt({arrive:$('myArrive').value}); toast('arrival updated'); };
     $('myDrive').onclick=async ()=>{ const on=!$('myDrive').classList.contains('on'); $('myDrive').classList.toggle('on',on); $('bringWrap').style.display=on?'block':'none'; $('needRideRow').style.display=on?'none':'flex'; const patch={driver:on}; if(on) patch.needsRide=false; await saveMyAtt(patch); };
-    $('myNeedRide').onclick=async ()=>{ const on=!$('myNeedRide').classList.contains('on'); $('myNeedRide').classList.toggle('on',on); await saveMyAtt({needsRide:on}); toast(on?'ride requested 🙋':'request cancelled'); };
+    $('myNeedRide').onclick=async ()=>{ const on=!$('myNeedRide').classList.contains('on'); $('myNeedRide').classList.toggle('on',on); await saveMyAtt({needsRide:on}); if(on) await pushFeed('🙋', `${ME.name} needs a ride to ${$('detName').textContent}`); toast(on?'ride requested 🙋':'request cancelled'); };
+    $('myLoc').onclick=async ()=>{ const on=!$('myLoc').classList.contains('on'); $('myLoc').classList.toggle('on',on); if(on){ startSharingLoc(); toast('sharing location 📍'); } else { stopSharingLoc(); await saveMyAtt({lat:null,lng:null}); toast('stopped sharing'); } };
     $('leaveBtn').onclick=async ()=>{
       const hid=CURRENT;
+      stopSharingLoc();
       await deleteDoc(doc(db,'hangouts',hid,'attendees',ME.id));
-      try{ const rest=await getDocs(collection(db,'hangouts',hid,'attendees')); if(rest.empty){ await deleteDoc(doc(db,'hangouts',hid)); } }catch(e){}
+      try{ const rest=await getDocs(collection(db,'hangouts',hid,'attendees')); if(rest.empty){ await deleteDoc(doc(db,'hangouts',hid)); await pushFeed('💨', `the ${$('detName').textContent} hangout ended`); } }catch(e){}
       toast('you left'); leaveDetail(); showView('home');
     };
     $('ridesBox').onclick=async e=>{
@@ -545,61 +778,69 @@ function startApp(){
       try{
         await updateDoc(doc(db,'hangouts',CURRENT,'attendees',rid),{needsRide:false, rideWith:ME.name});
         const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; if(!arr.includes(rname)) arr.push(rname); await saveMyAtt({bringing:arr});
+        await pushFeed('🚗', `${ME.name} is giving ${rname} a ride`);
         toast('you got them 🚗');
-      }catch(err){ console.error(err); toast('try again'); b.disabled=false; }
+      }catch(err){ toast('try again'); b.disabled=false; }
     };
+    // chat
+    $('chatSend').onclick=sendChat; $('chatIn').onkeydown=e=>{ if(e.key==='Enter') sendChat(); };
+    async function sendChat(){ const t=$('chatIn').value.trim(); if(!t||!CURRENT) return; $('chatIn').value=''; await addDoc(collection(db,'hangouts',CURRENT,'chat'),{uid:ME.id,name:ME.name,text:t,t:Date.now()}); }
+
     $('bringAdd').onclick=async ()=>{ const n=$('bringIn').value.trim(); if(!n) return; const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; arr.push(n); $('bringIn').value=''; await saveMyAtt({bringing:arr}); renderBringChips(arr); };
     $('bringIn').onkeydown=e=>{ if(e.key==='Enter') $('bringAdd').click(); };
     $('bringChips').onclick=async e=>{ const d=e.target.closest('[data-del]'); if(!d) return; const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; arr.splice(+d.dataset.del,1); await saveMyAtt({bringing:arr}); renderBringChips(arr); };
-    ['Nic','Yart','Alc'].forEach(v=>{ $('v'+v).onclick=async ()=>{ const on=!$('v'+v).classList.contains('on'); $('v'+v).classList.toggle('on',on); await saveMyAtt({[v.toLowerCase()]:on}); }; });
 
+    // vices
+    $('editViceBtn').onclick=()=>{ viceEditMode=!viceEditMode; $('editViceBtn').textContent=viceEditMode?'✓ done':'＋ / edit'; refreshViceRow(); };
+    $('viceRow').onclick=async e=>{
+      const del=e.target.closest('[data-vdel]');
+      if(del){ e.stopPropagation(); const label=del.dataset.vdel; startVote('vice', label, label); return; }
+      if(e.target.closest('#addViceBtn')){ $('viceNew').value=''; $('viceModal').classList.add('open'); setTimeout(()=>$('viceNew').focus(),100); return; }
+      const v=e.target.closest('[data-vice]'); if(!v||viceEditMode) return;
+      const label=v.dataset.vice; const mine=await getMyAtt()||{}; const vs={...(mine.vices||{})}; vs[label]=!vs[label]; v.classList.toggle('on',vs[label]); await saveMyAtt({vices:vs});
+    };
+    $('viceCancel').onclick=()=>$('viceModal').classList.remove('open');
+    $('viceSave').onclick=async ()=>{ const label=$('viceNew').value.trim().toLowerCase(); if(!label){ toast('type a label'); return; } if(VICES.some(v=>v.label===label)){ toast('already exists'); $('viceModal').classList.remove('open'); return; } await setDoc(doc(db,'vices',label),{label,cls:'',order:Date.now()}); $('viceModal').classList.remove('open'); toast('item added'); };
+
+    // media
     $('addMedia').onclick=()=>$('mediaFile').click();
     $('mediaFile').onchange=async e=>{
-      const f=e.target.files[0]; if(!f) return;
-      const isVid=f.type.startsWith('video');
-      if(isVid && f.size>120*1024*1024){ toast('video too big (max ~120MB)'); e.target.value=''; return; }
+      const f=e.target.files[0]; if(!f) return; const isVid=f.type.startsWith('video');
+      if(isVid && f.size>120*1024*1024){ toast('video too big'); e.target.value=''; return; }
       $('addMedia').innerHTML='<span class="spinner"></span> uploading…';
-      try{
-        const id=uid(); let blob,ext,type;
-        if(isVid){ blob=f; ext=(f.name.split('.').pop()||'mp4'); type='video'; }
-        else{ blob=dataURLToBlob(await resizeImage(f,1400,.78)); ext='jpg'; type='image'; }
-        const r=sRef(storage, `media/${CURRENT}/${id}.${ext}`);
-        await uploadBytes(r, blob);
-        const url=await getDownloadURL(r);
-        await setDoc(doc(db,'hangouts',CURRENT,'media',id), {url, type, by:ME.id, t:Date.now()});
-        toast(isVid?'video added 🎬':'photo added 📸');
-      }catch(err){ console.error(err); toast('upload failed — check Storage rules'); }
+      try{ const id=uid(); let blob,ext,type; if(isVid){ blob=f; ext=(f.name.split('.').pop()||'mp4'); type='video'; } else { blob=dataURLToBlob(await resizeImage(f,1400,.78)); ext='jpg'; type='image'; }
+        const r=sRef(storage, `media/${CURRENT}/${id}.${ext}`); await uploadBytes(r, blob); const url=await getDownloadURL(r);
+        await setDoc(doc(db,'hangouts',CURRENT,'media',id), {url, type, by:ME.id, t:Date.now()}); toast('added');
+      }catch(err){ toast('upload failed'); }
       $('addMedia').textContent='+ add a photo or video'; e.target.value='';
     };
 
+    // profile
     $('meChip').onclick=openProfile;
     $('editPfp').onclick=()=>$('editFile').click();
     $('editFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const d=await resizeImage(f,220,.72); pendingPfp=d; $('editPfp').style.background='transparent'; $('editPfp').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`; };
     ['editCar','editLic'].forEach(id=>toggle($(id)));
-    ['editNic','editYart','editAlc'].forEach(id=>toggle($(id)));
     $('profCancel').onclick=()=>$('profModal').classList.remove('open');
     $('profSave').onclick=async ()=>{
       ME.name=$('editName').value.trim()||ME.name; if(pendingPfp) ME.pfp=pendingPfp;
       ME.hasCar=$('editCar').classList.contains('on'); ME.hasLicense=$('editLic').classList.contains('on');
-      ME.nic=$('editNic').classList.contains('on'); ME.yart=$('editYart').classList.contains('on'); ME.alc=$('editAlc').classList.contains('on');
-      localStorage.setItem('yasaki_me',JSON.stringify(ME));
-      await setDoc(doc(db,'users',ME.id), profileDoc());
+      localStorage.setItem('yasaki_me',JSON.stringify(ME)); await setDoc(doc(db,'users',ME.id), profileDoc());
       renderMeChip(); $('profModal').classList.remove('open'); toast('account updated');
     };
 
+    // spot modal
+    $('spotUseLoc').onclick=()=>{ if(!navigator.geolocation){ toast('no GPS'); return; } $('spotUseLoc').innerHTML='<span class="spinner"></span> locating…'; navigator.geolocation.getCurrentPosition(pos=>{ pendingSpotLoc={lat:pos.coords.latitude,lng:pos.coords.longitude}; $('spotLocLabel').textContent='📍 location captured'; $('spotUseLoc').textContent='📍 update location'; }, ()=>{ toast('location blocked'); $('spotUseLoc').textContent='📍 use my current location'; }); };
     $('spotCancel').onclick=()=>$('spotModal').classList.remove('open');
-    $('spotDelete').onclick=async ()=>{
-      if(!editingSpot) return;
-      if(!confirm('Delete this spot? (hangouts already made keep their spot)')) return;
-      await deleteDoc(doc(db,'spots',editingSpot)); $('spotModal').classList.remove('open'); toast('spot deleted');
-    };
+    $('spotVoteDelete').onclick=async ()=>{ if(!editingSpot) return; const s=SPOTS.find(x=>x.id===editingSpot); $('spotModal').classList.remove('open'); startVote('spot', editingSpot, s?s.name:'spot'); };
     $('spotSave').onclick=async ()=>{
-      const emoji=$('spotEmoji').value.trim()||'📍'; const name=$('spotName').value.trim();
-      if(!name){ toast('name the spot'); return; }
-      if(editingSpot){ await updateDoc(doc(db,'spots',editingSpot),{emoji,name}); toast('spot updated ✏️'); }
-      else { const id=uid(); await setDoc(doc(db,'spots',id),{emoji,name}); decSel=id; toast('spot added 📍'); }
+      const emoji=$('spotEmoji').value.trim()||'📍'; const name=$('spotName').value.trim(); if(!name){ toast('name the spot'); return; }
+      const data={emoji,name}; if(pendingSpotLoc){ data.lat=pendingSpotLoc.lat; data.lng=pendingSpotLoc.lng; }
+      if(editingSpot){ await updateDoc(doc(db,'spots',editingSpot),data); toast('spot updated ✏️'); }
+      else { const id=uid(); await setDoc(doc(db,'spots',id),data); decSel=id; toast('spot added 📍'); }
       $('spotModal').classList.remove('open'); $('spotEmoji').value=''; $('spotName').value='';
     };
+
+    listenVotes();
   }
 
   function openProfile(){
@@ -608,15 +849,16 @@ function startApp(){
     $('editPfp').style.background=ME.pfp?'transparent':colorFor(ME.name);
     $('editPfp').innerHTML=ME.pfp?`<img src="${ME.pfp}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`:initials(ME.name);
     $('editCar').classList.toggle('on',!!ME.hasCar); $('editLic').classList.toggle('on',!!ME.hasLicense);
-    $('editNic').classList.toggle('on',!!ME.nic); $('editYart').classList.toggle('on',!!ME.yart); $('editAlc').classList.toggle('on',!!ME.alc);
     $('profModal').classList.add('open');
   }
   function openSpotModal(spot){
-    editingSpot = spot ? spot.id : null;
+    editingSpot = spot ? spot.id : null; pendingSpotLoc=null;
     $('spotModalTitle').textContent = spot ? 'edit spot' : 'add a new spot';
     $('spotEmoji').value = spot ? spot.emoji : '';
     $('spotName').value = spot ? spot.name : '';
-    $('spotDelete').style.display = spot ? 'block' : 'none';
+    $('spotLocLabel').textContent = (spot&&spot.lat)?'📍 has a saved location':'';
+    $('spotUseLoc').textContent = (spot&&spot.lat)?'📍 update location':'📍 use my current location';
+    $('spotVoteDelete').style.display = spot ? 'block' : 'none';
     $('spotModal').classList.add('open'); setTimeout(()=>$('spotName').focus(),100);
   }
 }
