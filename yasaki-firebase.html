@@ -473,6 +473,21 @@
   <p style="color:var(--ink-dim);font-weight:600;font-size:15px;">an admin needs to let you into the group. you'll be in as soon as they approve you — check back in a bit.</p>
 </div>
 
+<div id="notifWalk" style="display:none;position:fixed;inset:0;background:rgba(20,20,40,.55);z-index:550;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--bg);border-radius:24px;max-width:380px;width:100%;padding:26px 22px calc(26px + env(safe-area-inset-bottom));box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;">
+    <div style="font-size:52px;">🔔</div>
+    <h2 style="font-family:var(--fdisp);font-weight:700;font-size:23px;margin:10px 0 6px;color:var(--ink);">turn on notifications</h2>
+    <p style="color:var(--ink-dim);font-weight:600;font-size:14px;line-height:1.55;margin:0 0 16px;">get a buzz when a hangout starts, someone joins, a ride's confirmed, or the crew's chatting.</p>
+    <div style="text-align:left;background:var(--card2);border-radius:14px;padding:14px 16px;font-size:13.5px;font-weight:600;color:var(--ink-dim);line-height:1.7;">
+      <div><b style="color:var(--ink);">1.</b> tap <b style="color:var(--ink);">allow buzz</b> below</div>
+      <div><b style="color:var(--ink);">2.</b> your phone asks permission → tap <b style="color:var(--ink);">Allow</b></div>
+      <div style="margin-top:6px;font-size:12px;color:var(--ink-faint);">📱 on iPhone: works best after you "Add to Home Screen" and open it from there.</div>
+    </div>
+    <button class="btn btn-blue" id="walkAllow" style="margin-top:18px;">🔔 allow buzz</button>
+    <button class="btn btn-ghost" id="walkSkip" style="margin-top:10px;">maybe later</button>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -515,6 +530,7 @@ function startApp(){
   let unsubHome=null, unsubAtt=null, unsubMedia=null, unsubHangout=null, unsubSpots=null, unsubChat=null, unsubVotes=null, unsubFeed=null, unsubVices=null;
   let viewingProfile=null, viewingProfileName='', editingEvent=null, unsubComments=null, unsubChatTab=null, unsubCal=null;
   let prefs = JSON.parse(localStorage.getItem('yasaki_prefs')||'{"dark":false,"notif":true,"push":false}');
+  let prefsRestored=false;
   let lastSeenFeed = +(localStorage.getItem('yasaki_seenfeed')||0);
   let knownFeed = new Set();
 
@@ -539,7 +555,7 @@ function startApp(){
     return {ok:true, name:n};
   }
   function applyTheme(){ document.documentElement.setAttribute('data-theme', prefs.dark?'dark':'light'); }
-  function savePrefs(){ localStorage.setItem('yasaki_prefs', JSON.stringify(prefs)); }
+  function savePrefs(){ localStorage.setItem('yasaki_prefs', JSON.stringify(prefs)); try{ setDoc(doc(db,'users',ME.id),{prefs},{merge:true}); }catch(e){} }
 
   /* ---- notifications ---- */
   async function pushFeed(icon, text, actorId){
@@ -586,6 +602,10 @@ function startApp(){
     renderMeChip(); setupMediaUI(); applyPrefUI();
     showView('home'); listenHome(); listenFeed(); watchMyStatus(); watchConfig();
     if(prefs.push) requestPush(true);
+    // one-time notification walkthrough — runs once per device, on first open
+    if(!localStorage.getItem('yasaki_notifwalk')){
+      setTimeout(()=>{ $('notifWalk').style.display='flex'; }, 700);
+    }
   }
   function watchMyStatus(){
     onSnapshot(doc(db,'users',ME.id), d=>{
@@ -595,6 +615,13 @@ function startApp(){
       const u=d.data();
       ME.role=u.role||'member'; ME.status=u.status||'active';
       localStorage.setItem('yasaki_me', JSON.stringify(ME));
+      // restore saved settings from the cloud (survives iOS clearing localStorage)
+      if(u.prefs && !prefsRestored){
+        prefsRestored=true;
+        prefs={dark:!!u.prefs.dark, notif:u.prefs.notif!==false, push:!!u.prefs.push};
+        localStorage.setItem('yasaki_prefs', JSON.stringify(prefs));
+        applyTheme(); applyPrefUI();
+      }
       if(u.status==='banned'){ $('app').style.display='none'; $('gatePending').style.display='none'; $('gateRemoved').style.display='flex'; return; }
       if(u.status==='pending'){ $('app').style.display='none'; $('gateRemoved').style.display='none'; $('gatePending').style.display='flex'; return; }
       // active
@@ -1004,6 +1031,8 @@ function startApp(){
     };
 
     // settings toggles
+    $('walkAllow').onclick=async ()=>{ localStorage.setItem('yasaki_notifwalk','1'); $('notifWalk').style.display='none'; await requestPush(false); };
+    $('walkSkip').onclick=()=>{ localStorage.setItem('yasaki_notifwalk','1'); $('notifWalk').style.display='none'; };
     $('setDark').onclick=()=>{ prefs.dark=!prefs.dark; $('setDark').classList.toggle('on',prefs.dark); applyTheme(); savePrefs(); };
     $('setNotif').onclick=()=>{ prefs.notif=!prefs.notif; $('setNotif').classList.toggle('on',prefs.notif); savePrefs(); if(!prefs.notif) $('bellDot').style.display='none'; };
     $('setPush').onclick=()=>{ if(!prefs.push){ requestPush(false); } else { prefs.push=false; applyPrefUI(); savePrefs(); toast('phone buzz off'); } };
