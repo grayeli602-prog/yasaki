@@ -261,6 +261,8 @@
       <button id="btnCrew" class="btn btn-ghost" style="flex:1;">👥 the crew</button>
       <button id="btnShare" class="btn btn-purple" style="flex:1;">🔗 invite</button>
     </div>
+    <button id="btnMarket" class="btn btn-green" style="margin-top:10px;">🛒 stuff for sale</button>
+    <button id="btnFeedback" class="btn btn-ghost" style="margin-top:10px;">💡 bugs & feature ideas</button>
   </div>
 
   <div id="v-chat" class="view">
@@ -307,6 +309,18 @@
     <button class="back" data-home>← back</button>
     <div class="section-label">past hangouts <span id="pastCount" style="color:var(--ink-faint)"></span></div>
     <div id="pastList"></div>
+  </div>
+
+  <div id="v-market" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="row-between"><div class="section-label" style="margin:26px 2px 12px;">stuff for sale</div><button id="addListingBtn" class="btn btn-green btn-sm" style="padding:8px 14px;">＋ sell</button></div>
+    <div id="marketList"></div>
+  </div>
+
+  <div id="v-feedback" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="row-between"><div class="section-label" style="margin:26px 2px 12px;">bugs & ideas</div><button id="addFbBtn" class="btn btn-blue btn-sm" style="padding:8px 14px;">＋ post</button></div>
+    <div id="fbList"></div>
   </div>
 
   <div id="v-friends" class="view">
@@ -427,6 +441,31 @@
     <label class="fld"><span class="lab">short label (like "food")</span><input type="text" id="viceNew" placeholder="food" maxlength="10"></label>
     <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-ghost" id="viceCancel">cancel</button><button class="btn btn-green" id="viceSave">add it</button></div>
     <div class="note" style="margin-top:14px;">to delete an item the whole crew uses, the ✕ in edit mode starts a 4-hour vote.</div>
+  </div>
+</div>
+
+<div class="modal" id="listingModal">
+  <div class="sheet">
+    <h3>sell something</h3>
+    <label class="fld"><span class="lab">what is it</span><input type="text" id="lsTitle" placeholder="skateboard deck" maxlength="40"></label>
+    <label class="fld"><span class="lab">price</span><input type="text" id="lsPrice" placeholder="$40 / obo / free" maxlength="20"></label>
+    <label class="fld"><span class="lab">description</span><input type="text" id="lsDesc" placeholder="barely used, no chips" maxlength="120"></label>
+    <button class="btn btn-ghost" id="lsPhotoBtn" style="margin-top:14px;display:none;">📷 add a photo</button>
+    <div id="lsPhotoPreview" style="margin-top:10px;"></div>
+    <div style="display:flex;gap:10px;margin-top:18px;"><button class="btn btn-ghost" id="lsCancel">cancel</button><button class="btn btn-green" id="lsSave">post it</button></div>
+    <input type="file" id="lsFile" accept="image/*" class="hidden-file">
+  </div>
+</div>
+
+<div class="modal" id="fbModal">
+  <div class="sheet">
+    <h3>report a bug or idea</h3>
+    <div class="vice-row" style="margin-top:10px;">
+      <div class="vice" id="fbBug">🐛 bug</div>
+      <div class="vice" id="fbIdea">💡 idea</div>
+    </div>
+    <label class="fld"><span class="lab">what's up</span><input type="text" id="fbText" placeholder="describe it" maxlength="160"></label>
+    <div style="display:flex;gap:10px;margin-top:18px;"><button class="btn btn-ghost" id="fbCancel">cancel</button><button class="btn btn-blue" id="fbSave">post</button></div>
   </div>
 </div>
 
@@ -646,13 +685,13 @@ function startApp(){
     $('onbGo').onclick=async ()=>{
       const chk=cleanName($('onbName').value); if(!chk.ok){ toast(chk.msg); return; }
       const name=chk.name;
-      // first account ever = owner & auto-approved; everyone else starts pending
-      let role='member', status='pending';
-      try{ const existing=await getDocs(collection(db,'users')); if(existing.empty){ role='owner'; status='active'; } }catch(e){ role='owner'; status='active'; }
+      // first account ever = owner; everyone else joins straight in as a member
+      let role='member', status='active';
+      try{ const existing=await getDocs(collection(db,'users')); if(existing.empty){ role='owner'; } }catch(e){ role='owner'; }
       ME={ id:uid(), name, pfp:pendingPfp||null, hasCar:$('onbCar').classList.contains('on'), hasLicense:$('onbLic').classList.contains('on'), role, status };
       localStorage.setItem('yasaki_me',JSON.stringify(ME));
       await setDoc(doc(db,'users',ME.id), profileDoc());
-      if(status==='pending'){ await pushFeed('⏳', `${ME.name} wants to join — an admin can approve them in the crew`); }
+      await pushFeed('🙌', `${ME.name} joined Yasaki`);
       enterApp();
     };
   }
@@ -788,6 +827,51 @@ function startApp(){
       await setDoc(doc(db,'past',hid),{name:h.name,emoji:h.emoji,date:h.date||'',time:h.time||'',hostName:h.hostName||'',who,endedAt:Date.now()});
     }catch(e){}
   }
+  let unsubMarket=null, unsubFb=null, lsPendingPhoto=null, fbKind='bug';
+
+  function openMarket(){
+    showView('market'); $('lsPhotoBtn').style.display = STORAGE_ENABLED ? 'block' : 'none';
+    if(unsubMarket) unsubMarket();
+    unsubMarket=onSnapshot(query(collection(db,'market'),orderBy('t','desc'),limit(80)), snap=>{
+      const items=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const wrap=$('marketList');
+      if(!items.length){ wrap.innerHTML=`<div class="empty">nothing for sale yet.<br>hit ＋ sell to list something 🛒</div>`; return; }
+      wrap.innerHTML=items.map(it=>{
+        const mine=it.byId===ME.id; const canDel=mine||isAdmin();
+        return `<div class="hcard" style="cursor:default;flex-direction:column;align-items:stretch;gap:10px;${it.sold?'opacity:.55;':''}">
+          <div style="display:flex;align-items:center;gap:13px;">
+            ${it.photo?`<img src="${it.photo}" style="width:60px;height:60px;border-radius:12px;object-fit:cover;flex:none;">`:`<div class="spot-emoji">🛒</div>`}
+            <div class="hc-body"><div class="hc-title">${esc(it.title)} ${it.sold?'<span class="badge" style="background:var(--ink-faint);">sold</span>':''}</div><div class="hc-meta"><span class="t" style="color:var(--green);">${esc(it.price)}</span><span>by ${esc(it.by)}</span></div>${it.desc?`<div class="am" style="color:var(--ink-dim);margin-top:4px;">${esc(it.desc)}</div>`:''}</div>
+          </div>
+          ${mine?`<div style="display:flex;gap:8px;"><button class="btn ${it.sold?'btn-ghost':'btn-green'} btn-sm" data-sold="${it.id}" data-s="${it.sold?0:1}">${it.sold?'mark available':'✓ mark as sold'}</button>${canDel?`<button class="btn btn-leave btn-sm" data-lsdel="${it.id}">delete</button>`:''}</div>`:(canDel?`<button class="btn btn-leave btn-sm" data-lsdel="${it.id}" style="align-self:flex-start;">remove (admin)</button>`:'')}
+        </div>`;
+      }).join('');
+    });
+  }
+
+  function openFeedback(){
+    showView('feedback');
+    if(unsubFb) unsubFb();
+    unsubFb=onSnapshot(query(collection(db,'feedback'),orderBy('t','desc'),limit(100)), snap=>{
+      let items=snap.docs.map(d=>({id:d.id,...d.data()}));
+      items.sort((a,b)=>(a.done?1:0)-(b.done?1:0) || (Object.keys(b.votes||{}).length)-(Object.keys(a.votes||{}).length));
+      const wrap=$('fbList');
+      if(!items.length){ wrap.innerHTML=`<div class="empty">no bugs or ideas posted yet.<br>hit ＋ post to add one 💡</div>`; return; }
+      wrap.innerHTML=items.map(it=>{
+        const votes=Object.keys(it.votes||{}).length; const iVoted=it.votes&&it.votes[ME.id];
+        const canDel=(it.byId===ME.id)||isAdmin();
+        return `<div class="ride-row ${it.done?'done':''}" style="align-items:flex-start;">
+          <div class="rl" style="flex:1;">${it.kind==='bug'?'🐛':'💡'} ${esc(it.text)}<div class="am" style="font-weight:700;color:var(--ink-faint);margin-top:3px;">by ${esc(it.by)}${it.done?' · ✅ done':''}</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex:none;">
+            <button class="btn ${iVoted?'btn-purple':'btn-ghost'} btn-sm" data-fbvote="${it.id}" style="padding:6px 10px;">▲ ${votes}</button>
+            ${isAdmin()?`<button class="btn btn-ghost btn-sm" data-fbdone="${it.id}" data-d="${it.done?0:1}" style="padding:6px 10px;">${it.done?'reopen':'done'}</button>`:''}
+            ${canDel?`<button class="btn btn-leave btn-sm" data-fbdel="${it.id}" style="padding:6px 10px;">✕</button>`:''}
+          </div>
+        </div>`;
+      }).join('');
+    });
+  }
+
   function openPast(){
     showView('past');
     $('pastList').innerHTML=`<div class="empty">loading…</div>`;
@@ -1007,11 +1091,13 @@ function startApp(){
   }
 
   function wireApp(){
-    $('goHome').onclick=()=>{ leaveDetail(); [unsubChatTab,unsubCal,unsubComments].forEach(u=>u&&u()); unsubChatTab=unsubCal=unsubComments=null; showView('home'); };
-    document.querySelectorAll('[data-home]').forEach(b=> b.onclick=()=>{ leaveDetail(); [unsubChatTab,unsubCal,unsubComments].forEach(u=>u&&u()); unsubChatTab=unsubCal=unsubComments=null; showView('home'); });
+    $('goHome').onclick=()=>{ leaveDetail(); [unsubChatTab,unsubCal,unsubComments,unsubMarket,unsubFb].forEach(u=>u&&u()); unsubChatTab=unsubCal=unsubComments=unsubMarket=unsubFb=null; showView('home'); };
+    document.querySelectorAll('[data-home]').forEach(b=> b.onclick=()=>{ leaveDetail(); [unsubChatTab,unsubCal,unsubComments,unsubMarket,unsubFb].forEach(u=>u&&u()); unsubChatTab=unsubCal=unsubComments=unsubMarket=unsubFb=null; showView('home'); });
     $('btnDeclare').onclick=openDeclare;
     $('btnJoinList').onclick=()=>{ showView('home'); toast('tap a live hangout to join'); };
     $('btnCrew').onclick=openFriends;
+    $('btnMarket').onclick=openMarket;
+    $('btnFeedback').onclick=openFeedback;
     $('btnChat').onclick=openChat;
     $('btnCal').onclick=openCal;
     $('btnShare').onclick=async ()=>{
@@ -1085,6 +1171,45 @@ function startApp(){
     $('editHangBtn').onclick=()=>{ $('ehDate').value=$('v-detail').dataset.hdate||new Date().toISOString().slice(0,10); $('ehTime').value=$('v-detail').dataset.htime||roundedNow(); $('editHangModal').classList.add('open'); };
     $('ehCancel').onclick=()=>$('editHangModal').classList.remove('open');
     $('ehSave').onclick=async ()=>{ if(!CURRENT) return; await updateDoc(doc(db,'hangouts',CURRENT),{date:$('ehDate').value, time:$('ehTime').value}); $('editHangModal').classList.remove('open'); toast('hangout updated ✏️'); };
+    // marketplace
+    $('addListingBtn').onclick=()=>{ lsPendingPhoto=null; $('lsTitle').value=''; $('lsPrice').value=''; $('lsDesc').value=''; $('lsPhotoPreview').innerHTML=''; $('lsPhotoBtn').style.display=STORAGE_ENABLED?'block':'none'; $('listingModal').classList.add('open'); setTimeout(()=>$('lsTitle').focus(),100); };
+    $('lsCancel').onclick=()=>$('listingModal').classList.remove('open');
+    $('lsPhotoBtn').onclick=()=>$('lsFile').click();
+    $('lsFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; lsPendingPhoto=await resizeImage(f,1000,.75); $('lsPhotoPreview').innerHTML=`<img src="${lsPendingPhoto}" style="width:100%;border-radius:12px;">`; };
+    $('lsSave').onclick=async ()=>{
+      const title=$('lsTitle').value.trim(); if(!title){ toast('what are you selling?'); return; }
+      const price=$('lsPrice').value.trim()||'—';
+      const id=uid(); let photo=null;
+      if(lsPendingPhoto && STORAGE_ENABLED){ try{ const r=sRef(storage,`market/${id}.jpg`); await uploadBytes(r,dataURLToBlob(lsPendingPhoto)); photo=await getDownloadURL(r); }catch(_){} }
+      await setDoc(doc(db,'market',id),{title,price,desc:$('lsDesc').value.trim(),photo,by:ME.name,byId:ME.id,sold:false,t:Date.now()});
+      await pushFeed('🛒', `${ME.name} listed "${title}" for sale (${price})`);
+      $('listingModal').classList.remove('open'); toast('listed 🛒');
+    };
+    $('marketList').onclick=async e=>{
+      const sold=e.target.closest('[data-sold]'); const del=e.target.closest('[data-lsdel]');
+      if(sold){ await updateDoc(doc(db,'market',sold.dataset.sold),{sold:sold.dataset.s==='1'}); }
+      if(del){ if(!confirm('Delete this listing?')) return; await deleteDoc(doc(db,'market',del.dataset.lsdel)); toast('deleted'); }
+    };
+
+    // feedback
+    $('addFbBtn').onclick=()=>{ fbKind='bug'; $('fbBug').classList.add('on'); $('fbIdea').classList.remove('on'); $('fbText').value=''; $('fbModal').classList.add('open'); setTimeout(()=>$('fbText').focus(),100); };
+    $('fbBug').onclick=()=>{ fbKind='bug'; $('fbBug').classList.add('on'); $('fbIdea').classList.remove('on'); };
+    $('fbIdea').onclick=()=>{ fbKind='idea'; $('fbIdea').classList.add('on'); $('fbBug').classList.remove('on'); };
+    $('fbCancel').onclick=()=>$('fbModal').classList.remove('open');
+    $('fbSave').onclick=async ()=>{
+      const text=$('fbText').value.trim(); if(!text){ toast('type something'); return; }
+      const id=uid();
+      await setDoc(doc(db,'feedback',id),{kind:fbKind,text,by:ME.name,byId:ME.id,votes:{[ME.id]:true},done:false,t:Date.now()});
+      await pushFeed(fbKind==='bug'?'🐛':'💡', `${ME.name} posted a ${fbKind}: ${text.length>40?text.slice(0,40)+'…':text}`);
+      $('fbModal').classList.remove('open'); toast('posted 💡');
+    };
+    $('fbList').onclick=async e=>{
+      const v=e.target.closest('[data-fbvote]'); const dn=e.target.closest('[data-fbdone]'); const del=e.target.closest('[data-fbdel]');
+      if(v){ const ref=doc(db,'feedback',v.dataset.fbvote); const s=await getDoc(ref); if(!s.exists())return; const votes={...(s.data().votes||{})}; if(votes[ME.id]) delete votes[ME.id]; else votes[ME.id]=true; await updateDoc(ref,{votes}); }
+      if(dn){ await updateDoc(doc(db,'feedback',dn.dataset.fbdone),{done:dn.dataset.d==='1'}); }
+      if(del){ if(!confirm('Delete this post?')) return; await deleteDoc(doc(db,'feedback',del.dataset.fbdel)); }
+    };
+
     // calendar
     $('addEventBtn').onclick=()=>{ editingEvent=null; $('evTitle').value=''; $('evWhere').value=''; $('evDate').value=new Date().toISOString().slice(0,10); $('evTime').value=roundedNow(); $('eventModal').querySelector('h3').textContent='add an event'; $('eventModal').classList.add('open'); setTimeout(()=>$('evTitle').focus(),100); };
     $('evCancel').onclick=()=>$('eventModal').classList.remove('open');
