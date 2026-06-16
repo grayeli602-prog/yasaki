@@ -1,0 +1,1521 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Yasaki</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Yasaki">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23ffffff'/%3E%3Ctext x='90' y='118' font-size='84' font-family='Arial Black,Arial' font-weight='900' fill='%23ff5ea0' text-anchor='middle'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Yasaki%22%2C%22short_name%22%3A%22Yasaki%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%23ffffff%22%2C%22start_url%22%3A%22.%22%7D">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#ffffff;--bg2:#f6f7f9;--card:#ffffff;--card2:#f3f4f7;--line:#e7e8ee;
+    --ink:#1c1c24;--ink-dim:#5f606c;--ink-faint:#a6a7b2;
+    --green:#23c55e;--blue:#3b8dff;--pink:#ff5ea0;--orange:#ff8a39;--purple:#a06bff;--yellow:#ffc23d;--teal:#2dd4bf;
+    --shadow:0 12px 32px rgba(25,25,55,.10);--radius:20px;
+    --fdisp:'Fredoka',sans-serif;--fbody:'Nunito',sans-serif;
+  }
+  html[data-theme="dark"]{
+    --bg:#15141a;--bg2:#1d1c24;--card:#1f1e27;--card2:#2a2933;--line:#34323e;
+    --ink:#f1eef5;--ink-dim:#a9a6b6;--ink-faint:#6f6c7d;
+    --shadow:0 12px 32px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation;max-width:100%;}
+  button,.hero-card,.hcard,.spot-pick,.vice,.switch,.me-chip,.chip-d b,.brand{
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--fbody);-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  html{height:100%;overflow-x:hidden;overscroll-behavior:none;}
+  body{min-height:100%;padding-bottom:env(safe-area-inset-bottom);transition:background .25s,color .25s;background:var(--bg);overflow-x:hidden;overscroll-behavior-y:none;position:relative;width:100%;}
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px 120px;}
+  .view{display:none;animation:rise .26s cubic-bezier(.2,.8,.2,1);}
+  .view.active{display:block;}
+  @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  @keyframes pop{from{transform:scale(.97);opacity:0;}to{transform:none;opacity:1;}}
+  .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:calc(14px + env(safe-area-inset-top)) 0 12px;margin-bottom:6px;background:linear-gradient(var(--bg) 74%, transparent);}
+  .brand{display:flex;align-items:center;cursor:pointer;}
+  .brand .mark{font-family:var(--fdisp);font-weight:700;font-size:28px;letter-spacing:-.5px;line-height:1;}
+  .top-right{display:flex;align-items:center;gap:8px;}
+  .icon-btn{position:relative;width:42px;height:42px;border-radius:50%;border:none;color:#fff;
+    display:grid;place-items:center;font-size:19px;cursor:pointer;transition:transform .1s,box-shadow .12s;
+    box-shadow:0 5px 12px rgba(0,0,0,.22), inset 0 2px 3px rgba(255,255,255,.45), inset 0 -3px 5px rgba(0,0,0,.18);
+    text-shadow:0 1px 2px rgba(0,0,0,.25);}
+  .icon-btn:active{transform:scale(.9) translateY(1px);box-shadow:0 2px 6px rgba(0,0,0,.2), inset 0 2px 3px rgba(255,255,255,.4), inset 0 -2px 4px rgba(0,0,0,.2);}
+  #bellBtn{background:linear-gradient(160deg,#ffd84a,#ff9e2c 70%);}
+  #settingsBtn{background:linear-gradient(160deg,#7fc0ff,#3b8dff 70%);}
+  .icon-btn .dot{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:999px;background:var(--pink);
+    color:#fff;font-family:var(--fdisp);font-weight:700;font-size:11px;display:grid;place-items:center;padding:0 4px;border:2px solid var(--bg);text-shadow:none;box-shadow:0 2px 5px rgba(0,0,0,.3);}
+  .me-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+    padding:5px 12px 5px 5px;border-radius:999px;cursor:pointer;transition:transform .1s;box-shadow:var(--shadow);}
+  .me-chip:active{transform:scale(.94);}
+  .me-chip .nm{font-size:13px;font-weight:700;max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;display:grid;place-items:center;
+    font-family:var(--fdisp);font-weight:700;font-size:13px;color:#fff;flex:none;}
+  .btn{width:100%;border:none;cursor:pointer;font-family:var(--fdisp);font-weight:600;border-radius:15px;
+    padding:16px;font-size:17px;transition:transform .08s ease,filter .12s;color:#fff;}
+  .btn:active{transform:scale(.96);filter:brightness(.95);}
+  .btn-orange{background:linear-gradient(165deg,#ffa45c,#ff7a1f);box-shadow:0 8px 18px rgba(255,138,57,.34), inset 0 2px 2px rgba(255,255,255,.4), inset 0 -3px 5px rgba(0,0,0,.12);}
+  .btn-green{background:linear-gradient(165deg,#3ddb74,#18b257);box-shadow:0 8px 18px rgba(35,197,94,.32), inset 0 2px 2px rgba(255,255,255,.4), inset 0 -3px 5px rgba(0,0,0,.12);}
+  .btn-blue{background:linear-gradient(165deg,#5aa0ff,#2f7ff0);box-shadow:0 8px 18px rgba(59,141,255,.32), inset 0 2px 2px rgba(255,255,255,.4), inset 0 -3px 5px rgba(0,0,0,.12);}
+  .btn-purple{background:linear-gradient(165deg,#b486ff,#9258f5);box-shadow:0 8px 18px rgba(160,107,255,.32), inset 0 2px 2px rgba(255,255,255,.4), inset 0 -3px 5px rgba(0,0,0,.12);}
+  .btn-ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);}
+  .btn-leave{background:transparent;color:var(--pink);border:1.5px solid var(--line);box-shadow:none;}
+  .btn-sm{width:auto;padding:10px 16px;font-size:14px;border-radius:12px;}
+  .btn:disabled{opacity:.45;cursor:default;}
+  .hero-actions{display:grid;gap:12px;margin:8px 0 12px;}
+  .hero-card{position:relative;overflow:hidden;border-radius:var(--radius);padding:24px;cursor:pointer;transition:transform .1s;box-shadow:var(--shadow);}
+  .hero-card:active{transform:scale(.97);}
+  .hero-card .big{font-family:var(--fdisp);font-weight:700;font-size:28px;letter-spacing:-.5px;line-height:1;color:#fff;}
+  .hero-card .sub{font-family:var(--fbody);font-size:13px;font-weight:700;color:rgba(255,255,255,.85);margin-top:7px;}
+  .hero-card .ic{position:absolute;right:16px;bottom:-6px;font-size:74px;opacity:.95;filter:drop-shadow(0 6px 8px rgba(0,0,0,.3));}
+  .declare{background:linear-gradient(135deg,var(--orange),#ff6f3d);}
+  .join{background:linear-gradient(135deg,var(--green),#1fb86a);}
+  .section-label{font-family:var(--fdisp);font-size:13px;letter-spacing:.3px;color:var(--ink-dim);
+    font-weight:600;margin:26px 2px 12px;display:flex;align-items:center;gap:8px;}
+  .section-label::before{content:"";height:8px;width:8px;border-radius:50%;flex:none;background:var(--pink);}
+  .row-between{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .hcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px;
+    margin-bottom:11px;cursor:pointer;display:flex;align-items:center;gap:13px;transition:transform .1s;animation:pop .26s both;box-shadow:var(--shadow);}
+  .hcard:active{transform:scale(.98);}
+  .hcard .spot-emoji{font-size:30px;flex:none;width:50px;height:50px;border-radius:14px;
+    background:linear-gradient(160deg, var(--card2), var(--card));display:grid;place-items:center;
+    box-shadow:inset 0 2px 3px rgba(255,255,255,.5), inset 0 -3px 5px rgba(0,0,0,.1), 0 3px 7px rgba(0,0,0,.08);
+    text-shadow:0 2px 3px rgba(0,0,0,.18);}
+  .hcard .hc-body{flex:1;min-width:0;}
+  .hcard .hc-title{font-family:var(--fdisp);font-weight:600;font-size:18px;letter-spacing:-.2px;}
+  .hcard .hc-meta{font-size:13px;font-weight:600;color:var(--ink-dim);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap;}
+  .hcard .hc-meta .t{color:var(--blue);}
+  .count-pill{font-family:var(--fdisp);font-weight:600;font-size:13px;background:var(--card2);padding:6px 11px;border-radius:999px;color:var(--ink);flex:none;}
+  .empty{text-align:center;color:var(--ink-faint);font-size:15px;font-weight:600;padding:30px 10px;line-height:1.6;}
+  label.fld{display:block;margin:16px 0 0;}
+  label.fld .lab,.lab{font-family:var(--fdisp);font-size:13px;font-weight:600;color:var(--ink-dim);margin-bottom:7px;display:block;}
+  input[type=text],input[type=time],input[type=date]{width:100%;background:var(--card);border:1.5px solid var(--line);color:var(--ink);
+    padding:14px;border-radius:14px;font-family:var(--fbody);font-weight:600;font-size:16px;outline:none;transition:border-color .12s;}
+  input:focus{border-color:var(--blue);}
+  input::placeholder{color:var(--ink-faint);font-weight:600;}
+  .spot-grid{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px;}
+  .spot-pick{display:flex;align-items:center;gap:7px;background:var(--card);border:1.5px solid var(--line);
+    padding:11px 14px;border-radius:14px;cursor:pointer;font-size:15px;font-weight:700;transition:transform .08s,border-color .12s,background .12s;color:var(--ink);}
+  .spot-pick .em{font-size:18px;}
+  .spot-pick:active{transform:scale(.94);}
+  .spot-pick.sel{border-color:var(--blue);background:rgba(59,141,255,.1);color:var(--blue);}
+  .spot-add{border-style:dashed;color:var(--ink-dim);}
+  .spot-grid.editing .spot-pick{border-color:var(--orange);border-style:dashed;}
+  .spot-grid.editing .spot-add{display:none;}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px;box-shadow:var(--shadow);}
+  .toggle-row .tt{font-size:15px;font-weight:700;}
+  .switch{width:50px;height:29px;border-radius:999px;background:var(--card2);border:1px solid var(--line);position:relative;cursor:pointer;flex:none;transition:background .15s,border-color .15s;}
+  .switch i{position:absolute;top:2.5px;left:2.5px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .15s;}
+  .switch.on{background:var(--green);border-color:var(--green);}
+  .switch.on i{left:23px;}
+  .vice-row{display:flex;gap:9px;margin-top:8px;flex-wrap:wrap;}
+  .vice{flex:1 1 64px;text-align:center;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:14px 6px;cursor:pointer;
+    font-family:var(--fdisp);font-weight:600;font-size:15px;color:var(--ink-faint);transition:transform .08s,background .12s,color .12s,border-color .12s;position:relative;}
+  .vice:active{transform:scale(.93);}
+  .vice.on{color:#fff;background:var(--purple);border-color:var(--purple);}
+  .vice.nic.on{background:var(--orange);border-color:var(--orange);}
+  .vice.yart.on{background:var(--green);border-color:var(--green);}
+  .vice.alc.on{background:var(--pink);border-color:var(--pink);}
+  .vice .vdel{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--pink);color:#fff;font-size:12px;display:none;place-items:center;border:2px solid var(--bg);}
+  .vice-row.editing .vice .vdel{display:grid;}
+  .att{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;margin-bottom:10px;animation:pop .24s both;box-shadow:var(--shadow);}
+  .att .av{width:44px;height:44px;border-radius:12px;flex:none;}
+  .att .av.avatar{font-size:16px;border-radius:12px;}
+  .att .ab{flex:1;min-width:0;}
+  .att .an{font-weight:800;font-size:15px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .att .am{font-size:13px;font-weight:600;color:var(--ink-dim);margin-top:3px;}
+  .att .am .arr{color:var(--blue);font-weight:700;}
+  .att .am .mini{color:var(--ink-faint);}
+  .badge{font-family:var(--fdisp);font-size:11px;padding:3px 9px;border-radius:8px;font-weight:600;color:#fff;}
+  .b-you{background:var(--blue);}
+  .b-host{background:var(--orange);}
+  .b-drive{background:var(--green);}
+  .b-ride{background:var(--purple);}
+  .v-tags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+  .v-tag{font-family:var(--fdisp);font-size:11px;font-weight:600;padding:3px 9px;border-radius:7px;color:#fff;background:var(--purple);}
+  .v-tag.nic{background:var(--orange);}
+  .v-tag.yart{background:var(--green);}
+  .v-tag.alc{background:var(--pink);}
+  .bringing{font-size:13px;font-weight:600;color:var(--ink-dim);margin-top:6px;}
+  .bringing b{color:var(--ink);font-weight:800;}
+  .ride-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:13px 14px;margin-bottom:9px;box-shadow:var(--shadow);animation:pop .24s both;}
+  .ride-row .rl{font-size:14px;font-weight:700;color:var(--ink);}
+  .ride-row .rl b{font-weight:800;}
+  .ride-row.done{background:rgba(35,197,94,.08);border-color:rgba(35,197,94,.3);}
+  .ride-row.done .rl{color:var(--ink-dim);}
+  .ride-wait{font-size:13px;font-weight:700;color:var(--purple);}
+  .det-head{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:6px;display:flex;gap:14px;align-items:center;box-shadow:var(--shadow);}
+  .det-head .de{font-size:42px;width:64px;height:64px;border-radius:18px;background:linear-gradient(160deg, var(--card2), var(--card));display:grid;place-items:center;flex:none;box-shadow:inset 0 2px 4px rgba(255,255,255,.5), inset 0 -3px 6px rgba(0,0,0,.1), 0 4px 9px rgba(0,0,0,.1);text-shadow:0 2px 4px rgba(0,0,0,.2);}
+  .det-head h2{font-family:var(--fdisp);font-weight:700;font-size:24px;margin:0;letter-spacing:-.3px;}
+  .det-head .dm{font-size:13px;font-weight:600;color:var(--ink-dim);margin-top:5px;}
+  .det-head .dm .t{color:var(--blue);font-weight:700;}
+  .mycard{background:linear-gradient(135deg,rgba(59,141,255,.08),var(--card));border:1.5px solid rgba(59,141,255,.3);border-radius:18px;padding:16px;margin:14px 0;box-shadow:var(--shadow);}
+  .mycard .mh{font-family:var(--fdisp);font-size:13px;font-weight:600;color:var(--blue);margin-bottom:4px;}
+  .chips-in{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+  .chip-d{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;}
+  .chip-d b{font-size:15px;cursor:pointer;color:var(--ink-faint);line-height:.7;}
+  .chat-box{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;padding:4px 2px;}
+  .msg{max-width:80%;padding:9px 13px;border-radius:15px;font-size:14px;font-weight:600;line-height:1.35;animation:pop .2s both;}
+  .msg .who{font-family:var(--fdisp);font-size:11px;font-weight:600;color:var(--ink-faint);margin-bottom:2px;}
+  .msg.them{align-self:flex-start;background:var(--card2);border:1px solid var(--line);border-bottom-left-radius:5px;}
+  .msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:5px;}
+  .msg.me .who{color:rgba(255,255,255,.7);}
+  .chat-tab{background:var(--card2);color:var(--ink-dim);border:1px solid var(--line);font-size:14px;}
+  .chat-tab.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .chat-input{display:flex;gap:8px;margin-top:10px;}
+  .feed-item{display:flex;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin-bottom:8px;box-shadow:var(--shadow);animation:pop .22s both;}
+  .feed-item .fi{font-size:20px;flex:none;}
+  .feed-item .ft{font-size:14px;font-weight:700;color:var(--ink);}
+  .feed-item .fd{font-size:12px;font-weight:600;color:var(--ink-faint);margin-top:2px;}
+  .feed-item.unread{border-color:var(--pink);}
+  .vote-card{background:linear-gradient(135deg,rgba(160,107,255,.1),var(--card));border:1.5px solid rgba(160,107,255,.35);
+    border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow);}
+  .vote-card .vt{font-family:var(--fdisp);font-weight:600;font-size:15px;}
+  .vote-card .vc{font-size:12px;font-weight:700;color:var(--purple);margin-top:3px;}
+  .vote-actions{display:flex;gap:8px;margin-top:10px;}
+  .tally{font-size:13px;font-weight:800;color:var(--ink-dim);margin-top:8px;}
+  .media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px;}
+  .media-grid .mthumb{position:relative;aspect-ratio:1;border-radius:13px;overflow:hidden;background:var(--card2);border:1px solid var(--line);}
+  .media-grid .mthumb img,.media-grid .mthumb video{width:100%;height:100%;object-fit:cover;display:block;}
+  .media-grid .play{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:#fff;pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,.6);}
+  .media-grid .dl{position:absolute;right:5px;bottom:5px;background:rgba(0,0,0,.55);border-radius:9px;width:28px;height:28px;display:grid;place-items:center;font-size:14px;cursor:pointer;color:#fff;text-decoration:none;}
+  .note{font-size:12.5px;font-weight:600;color:var(--ink-faint);margin-top:8px;line-height:1.5;}
+  .back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--ink-dim);font-family:var(--fdisp);font-weight:600;font-size:14px;cursor:pointer;padding:8px 0;margin-bottom:4px;}
+  .back:active{transform:translateX(-2px);}
+  .onb{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));max-width:440px;margin:0 auto;}
+  .onb .logo{font-family:var(--fdisp);font-weight:700;font-size:60px;letter-spacing:-2px;line-height:.9;text-align:center;}
+  .onb .tag{text-align:center;color:var(--ink-dim);font-size:15px;font-weight:700;margin:16px 0 26px;}
+  .pfp-pick{display:flex;flex-direction:column;align-items:center;gap:12px;margin:8px 0;}
+  .pfp-big{width:100px;height:100px;border-radius:26px;object-fit:cover;cursor:pointer;display:grid;place-items:center;
+    font-family:var(--fdisp);font-weight:700;font-size:36px;color:#fff;border:3px solid var(--line);}
+  .pfp-hint{font-family:var(--fdisp);font-weight:600;font-size:12px;color:var(--ink-faint);}
+  #toast{position:fixed;bottom:calc(26px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--bg);
+    font-weight:700;font-size:14px;padding:12px 20px;border-radius:13px;z-index:300;transition:.2s;pointer-events:none;box-shadow:var(--shadow);}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .modal{position:fixed;inset:0;background:rgba(20,20,40,.4);z-index:150;display:none;align-items:flex-end;justify-content:center;}
+  .modal.open{display:flex;animation:rise .2s;}
+  .sheet{background:var(--bg);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:24px 18px calc(30px + env(safe-area-inset-bottom));animation:rise .26s;box-shadow:0 -10px 40px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;}
+  .sheet h3{font-family:var(--fdisp);font-weight:700;font-size:22px;margin:0 0 4px;}
+  .hidden-file{display:none;}
+  .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #setupGate{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;padding:30px;flex-direction:column;justify-content:center;max-width:520px;margin:0 auto;}
+  #setupGate h2{font-family:var(--fdisp);color:var(--orange);font-size:26px;margin:0 0 10px;}
+  #setupGate p{color:var(--ink-dim);font-size:15px;font-weight:600;line-height:1.7;}
+  #setupGate code{font-family:monospace;color:var(--blue);font-size:13px;}
+</style>
+
+<div id="setupGate">
+  <h2>One step before launch</h2>
+  <p>Paste your Firebase config into this file (look for <code>const firebaseConfig = {…}</code>), then re-open it.</p>
+</div>
+
+<div id="onboarding" class="onb" style="display:none;">
+  <div class="logo"><span style="color:var(--green)">Y</span><span style="color:var(--blue)">A</span><span style="color:var(--pink)">S</span><span style="color:var(--orange)">A</span><span style="color:var(--green)">K</span><span style="color:var(--blue)">I</span></div>
+  <div class="tag">the homies hangout board.</div>
+
+  <div id="onbModeWrap" style="display:flex;gap:8px;margin-bottom:18px;">
+    <button class="btn btn-sm chat-tab on" id="onbModeNew" style="flex:1;">new here</button>
+    <button class="btn btn-sm chat-tab" id="onbModeBack" style="flex:1;">log back in</button>
+  </div>
+
+  <div id="onbNew">
+    <div class="pfp-pick">
+      <div id="onbPfp" class="pfp-big" style="background:var(--pink)">?</div>
+      <div class="pfp-hint">tap to add a photo</div>
+    </div>
+    <label class="fld"><span class="lab">your name</span>
+      <input type="text" id="onbName" placeholder="what do they call you" maxlength="22" autocomplete="off">
+    </label>
+    <label class="fld"><span class="lab">make a 4-digit PIN (so you can log back in)</span>
+      <input type="text" id="onbPin" inputmode="numeric" placeholder="••••" maxlength="4" autocomplete="off">
+    </label>
+    <div class="toggle-row"><span class="tt">i have a car 🚗</span><div class="switch" id="onbCar"><i></i></div></div>
+    <div class="toggle-row"><span class="tt">i have my license 🪪</span><div class="switch" id="onbLic"><i></i></div></div>
+    <button class="btn btn-blue" id="onbGo" style="margin-top:24px;">create account</button>
+  </div>
+
+  <div id="onbBack" style="display:none;">
+    <label class="fld"><span class="lab">your name</span>
+      <input type="text" id="backName" placeholder="the name you used" maxlength="22" autocomplete="off">
+    </label>
+    <label class="fld"><span class="lab">your 4-digit PIN</span>
+      <input type="text" id="backPin" inputmode="numeric" placeholder="••••" maxlength="4" autocomplete="off">
+    </label>
+    <button class="btn btn-green" id="backGo" style="margin-top:24px;">log in</button>
+  </div>
+
+  <input type="file" id="onbFile" accept="image/*" class="hidden-file">
+</div>
+
+<div id="app" class="wrap" style="display:none;">
+  <div class="topbar">
+    <div class="brand" id="goHome"><span class="mark"><span style="color:var(--green)">Y</span><span style="color:var(--blue)">A</span><span style="color:var(--pink)">S</span><span style="color:var(--orange)">A</span><span style="color:var(--green)">K</span><span style="color:var(--blue)">I</span></span></div>
+    <div class="top-right">
+      <div class="icon-btn" id="bellBtn">🔔<span class="dot" id="bellDot" style="display:none;">0</span></div>
+      <div class="icon-btn" id="settingsBtn">⚙️</div>
+      <div class="me-chip" id="meChip"><span id="meAv" class="avatar"></span><span class="nm" id="meName"></span></div>
+    </div>
+  </div>
+
+  <div id="v-home" class="view active">
+    <div class="section-label" style="margin-top:8px;">live hangouts <span id="liveCount" style="color:var(--ink-faint)"></span></div>
+    <div id="homeList" style="margin-bottom:18px;"></div>
+    <div class="hero-actions">
+      <div class="hero-card declare" id="btnDeclare"><div class="big">DECLARE</div><div class="sub">start a hangout · pick the spot</div><div class="ic">🔥</div></div>
+      <div class="hero-card join" id="btnJoinList"><div class="big">JOIN</div><div class="sub">pull up to whatever's live</div><div class="ic">🙌</div></div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button id="btnChat" class="btn btn-blue" style="flex:1;">💬 chat</button>
+      <button id="btnCal" class="btn btn-green" style="flex:1;">📅 calendar</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px;">
+      <button id="btnCrew" class="btn btn-ghost" style="flex:1;">👥 the crew</button>
+      <button id="btnShare" class="btn btn-purple" style="flex:1;">🔗 invite</button>
+    </div>
+    <button id="btnDMs" class="btn btn-blue" style="margin-top:10px;position:relative;">✉️ messages<span id="dmBadge" style="display:none;position:absolute;top:8px;right:14px;min-width:22px;height:22px;border-radius:999px;background:var(--pink);color:#fff;font-family:var(--fdisp);font-weight:700;font-size:12px;display:grid;place-items:center;padding:0 5px;">0</span></button>
+    <button id="btnMarket" class="btn btn-green" style="margin-top:10px;">🛒 stuff for sale</button>
+    <button id="btnFeedback" class="btn btn-ghost" style="margin-top:10px;">💡 bugs & feature ideas</button>
+  </div>
+
+  <div id="v-chat" class="view">
+    <button class="back" data-home>← back</button>
+    <div style="display:flex;gap:8px;margin:6px 0 12px;">
+      <button class="btn btn-sm chat-tab on" id="chatTabCrew" style="flex:1;">👥 crew</button>
+      <button class="btn btn-sm chat-tab" id="chatTabHang" style="flex:1;">🔥 this hangout</button>
+    </div>
+    <div id="chatPane" style="overflow:hidden;">
+      <div id="chatTrack" style="display:flex;width:200%;transition:transform .25s ease;">
+        <div style="width:50%;padding-right:6px;">
+          <div class="chat-box" id="chatBox" style="max-height:none;min-height:48vh;"></div>
+          <div class="chat-input"><input type="text" id="chatIn" placeholder="message the crew" maxlength="300"><button class="btn btn-blue btn-sm" id="chatSend" style="flex:none;">send</button></div>
+        </div>
+        <div style="width:50%;padding-left:6px;">
+          <div class="chat-box" id="hchatBox" style="max-height:none;min-height:48vh;"></div>
+          <div class="chat-input" id="hchatInputRow"><input type="text" id="hchatIn" placeholder="message this hangout" maxlength="300"><button class="btn btn-blue btn-sm" id="hchatSend" style="flex:none;">send</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="v-cal" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="row-between"><div class="section-label" style="margin:26px 2px 12px;">calendar</div><button id="addEventBtn" class="btn btn-green btn-sm" style="padding:8px 14px;">＋ event</button></div>
+    <div id="calList"></div>
+  </div>
+
+  <div id="v-feed" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">notifications</div>
+    <div id="feedList"></div>
+  </div>
+
+  <div id="v-settings" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">settings</div>
+    <div class="toggle-row"><span class="tt">🌙 dark mode</span><div class="switch" id="setDark"><i></i></div></div>
+    <div class="toggle-row"><span class="tt">🔔 in-app notifications</span><div class="switch" id="setNotif"><i></i></div></div>
+    <div class="toggle-row"><span class="tt">📳 buzz my phone (best on home-screen)</span><div class="switch" id="setPush"><i></i></div></div>
+    <div class="note">phone buzz only works after you "Add to Home Screen" and tap Allow. iPhone is picky about this — if it doesn't take, the in-app bell still catches everything.</div>
+    <div id="ownerSettings" style="display:none;">
+      <div class="section-label">owner controls</div>
+      <div class="toggle-row"><span class="tt">💬 allow profile comments</span><div class="switch" id="setComments"><i></i></div></div>
+      <div class="note">turn this off to hide and lock the comment section on everyone's profile.</div>
+    </div>
+    <div class="section-label">history</div>
+    <button class="btn btn-ghost" id="openPast">🕓 past hangouts</button>
+    <div class="section-label">your account</div>
+    <button class="btn btn-ghost" id="openAccount">edit name, photo, car & license</button>
+  </div>
+
+  <div id="v-past" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">past hangouts <span id="pastCount" style="color:var(--ink-faint)"></span></div>
+    <div id="pastList"></div>
+  </div>
+
+  <div id="v-market" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="row-between"><div class="section-label" style="margin:26px 2px 12px;">stuff for sale</div><button id="addListingBtn" class="btn btn-green btn-sm" style="padding:8px 14px;">＋ sell</button></div>
+    <div id="marketList"></div>
+  </div>
+
+  <div id="v-dms" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="row-between"><div class="section-label" style="margin:26px 2px 12px;">messages</div><button id="newDmBtn" class="btn btn-blue btn-sm" style="padding:8px 14px;">＋ new</button></div>
+    <div id="dmList"></div>
+  </div>
+
+  <div id="v-dm" class="view">
+    <button class="back" id="dmBack">← messages</button>
+    <div class="det-head" style="padding:13px;"><div id="dmAvatar" style="flex:none;"></div><div style="flex:1;min-width:0;"><h2 id="dmWith" style="font-size:20px;">name</h2></div></div>
+    <div class="chat-box" id="dmBox" style="max-height:none;min-height:52vh;margin-top:8px;"></div>
+    <div class="chat-input"><input type="text" id="dmIn" placeholder="message" maxlength="500"><button class="btn btn-blue btn-sm" id="dmSend" style="flex:none;">send</button></div>
+  </div>
+
+  <div id="v-feedback" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="row-between"><div class="section-label" style="margin:26px 2px 12px;">bugs & ideas</div><button id="addFbBtn" class="btn btn-blue btn-sm" style="padding:8px 14px;">＋ post</button></div>
+    <div id="fbList"></div>
+  </div>
+
+  <div id="v-friends" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">the crew <span id="crewCount" style="color:var(--ink-faint)"></span></div>
+    <div id="pendingWrap" style="display:none;">
+      <div class="section-label" style="margin-top:6px;">waiting to be approved</div>
+      <div id="pendingList"></div>
+    </div>
+    <div id="crewList"></div>
+  </div>
+
+  <div id="v-profile" class="view">
+    <button class="back" id="profBack">← back</button>
+    <div class="det-head">
+      <div id="pvAvatar" style="flex:none;"></div>
+      <div style="flex:1;min-width:0;"><h2 id="pvName">name</h2><div class="dm" id="pvMeta"></div></div>
+    </div>
+    <button class="btn btn-blue" id="pvMessage" style="display:none;margin-top:10px;">✉️ message</button>
+    <div class="section-label">what the crew says</div>
+    <div class="chat-input" style="margin-top:0;">
+      <input type="text" id="commentIn" placeholder="leave a comment" maxlength="200">
+      <button class="btn btn-blue btn-sm" id="commentSend" style="flex:none;">post</button>
+    </div>
+    <div id="commentList" style="margin-top:12px;"></div>
+  </div>
+
+  <div id="v-declare" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="section-label">declare a hangout</div>
+    <div class="row-between"><span class="lab" style="margin:0;">the spot</span><button id="editSpotsBtn" class="btn btn-ghost btn-sm" style="padding:7px 13px;font-size:13px;">✏️ edit spots</button></div>
+    <div class="spot-grid" id="spotGrid"></div>
+    <label class="fld"><span class="lab">date</span><input type="date" id="decDate"></label>
+    <label class="fld"><span class="lab">start time</span><input type="time" id="decTime"></label>
+    <div class="toggle-row"><span class="tt">i can pick people up 🚗</span><div class="switch" id="decDrive"><i></i></div></div>
+    <button class="btn btn-orange" id="decGo" style="margin-top:24px;">declare it</button>
+  </div>
+
+  <div id="v-detail" class="view">
+    <button class="back" data-home>← back</button>
+    <div class="det-head">
+      <div class="de" id="detEmoji">🛹</div>
+      <div style="flex:1;min-width:0;"><h2 id="detName">Spot</h2><div class="dm"><span id="detDate"></span>starts <span class="t" id="detTime">—</span> · by <span id="detHost">—</span></div></div>
+    </div>
+    <div class="mycard" id="myCard">
+      <div class="mh">your status</div>
+      <div id="notJoined">
+        <div style="color:var(--ink-dim);font-size:15px;font-weight:600;margin:6px 0 12px;">you haven't pulled up yet.</div>
+        <button class="btn btn-green" id="joinNow">join this hangout</button>
+      </div>
+      <div id="joinedBox" style="display:none;">
+        <label class="fld"><span class="lab">when you'll arrive</span><input type="time" id="myArrive"></label>
+        <div class="toggle-row"><span class="tt">i can pick people up 🚗</span><div class="switch" id="myDrive"><i></i></div></div>
+        <div class="toggle-row" id="needRideRow"><span class="tt">🙋 i need a ride</span><div class="switch" id="myNeedRide"><i></i></div></div>
+        <div id="bringWrap" style="display:none;">
+          <span class="lab" style="margin-top:14px;">people you're bringing</span>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input type="text" id="bringIn" placeholder="add a name" maxlength="22">
+            <button class="btn btn-ghost btn-sm" id="bringAdd" style="flex:none;">add</button>
+          </div>
+          <div class="chips-in" id="bringChips"></div>
+        </div>
+        <div class="row-between" style="margin-top:16px;"><span class="lab" style="margin:0;">bringing</span><button id="editViceBtn" class="btn btn-ghost btn-sm" style="padding:6px 11px;font-size:12px;">＋ / edit</button></div>
+        <div class="vice-row" id="viceRow"></div>
+        <button class="btn btn-leave" id="leaveBtn" style="margin-top:14px;">leave hangout</button>
+        <button class="btn btn-ghost" id="editHangBtn" style="margin-top:10px;display:none;">✏️ edit date / time (host)</button>
+        <button class="btn btn-leave" id="endBtn" style="margin-top:10px;display:none;border-color:var(--pink);color:var(--pink);">🗑️ end this hangout (host)</button>
+        <div style="font-family:var(--fdisp);font-weight:600;font-size:12px;color:var(--ink-faint);margin-top:10px;">changes save automatically ✓</div>
+      </div>
+    </div>
+
+    <div class="section-label">rides</div>
+    <div id="ridesBox"></div>
+    <div class="section-label">who's coming <span id="detCount" style="color:var(--ink-faint)"></span></div>
+    <div id="attList"></div>
+    <div class="section-label">photos & videos</div>
+    <button class="btn btn-blue" id="addMedia">+ add a photo or video</button>
+    <div class="media-grid" id="mediaGrid"></div>
+    <div class="note">uploads are live for everyone &amp; downloadable. on phones, long-press to save.</div>
+    <input type="file" id="mediaFile" accept="image/*,video/*" class="hidden-file">
+  </div>
+</div>
+
+<div class="modal" id="profModal">
+  <div class="sheet">
+    <h3>your account</h3>
+    <div class="pfp-pick" style="margin-top:14px;"><div id="editPfp" class="pfp-big"></div><div class="pfp-hint">tap to change photo</div></div>
+    <label class="fld"><span class="lab">name</span><input type="text" id="editName" maxlength="22"></label>
+    <div class="toggle-row"><span class="tt">i have a car 🚗</span><div class="switch" id="editCar"><i></i></div></div>
+    <div class="toggle-row"><span class="tt">i have my license 🪪</span><div class="switch" id="editLic"><i></i></div></div>
+    <div style="display:flex;gap:10px;margin-top:22px;"><button class="btn btn-ghost" id="profCancel">cancel</button><button class="btn btn-blue" id="profSave">save</button></div>
+    <input type="file" id="editFile" accept="image/*" class="hidden-file">
+  </div>
+</div>
+
+<div class="modal" id="spotModal">
+  <div class="sheet">
+    <h3 id="spotModalTitle">add a new spot</h3>
+    <label class="fld"><span class="lab">emoji</span><input type="text" id="spotEmoji" placeholder="🍻" maxlength="4" style="font-size:24px;text-align:center;"></label>
+    <label class="fld"><span class="lab">spot name</span><input type="text" id="spotName" placeholder="the bridge" maxlength="26"></label>
+    <label class="fld"><span class="lab">location (optional)</span>
+      <button class="btn btn-ghost btn-sm" id="spotUseLoc" style="width:100%;">📍 use my current location</button>
+    </label>
+    <div id="spotLocLabel" class="note"></div>
+    <button class="btn btn-purple" id="spotVoteDelete" style="display:none;margin-top:18px;">🗳️ start vote to delete</button>
+    <button class="btn btn-leave" id="spotAdminDelete" style="display:none;margin-top:10px;border-color:var(--pink);color:var(--pink);">🗑️ delete now (admin)</button>
+    <div style="display:flex;gap:10px;margin-top:14px;"><button class="btn btn-ghost" id="spotCancel">cancel</button><button class="btn btn-orange" id="spotSave">save</button></div>
+  </div>
+</div>
+
+<div class="modal" id="viceModal">
+  <div class="sheet">
+    <h3>add a bring-item</h3>
+    <label class="fld"><span class="lab">short label (like "food")</span><input type="text" id="viceNew" placeholder="food" maxlength="10"></label>
+    <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-ghost" id="viceCancel">cancel</button><button class="btn btn-green" id="viceSave">add it</button></div>
+    <div class="note" style="margin-top:14px;">to delete an item the whole crew uses, the ✕ in edit mode starts a 4-hour vote.</div>
+  </div>
+</div>
+
+<div class="modal" id="listingModal">
+  <div class="sheet">
+    <h3>sell something</h3>
+    <label class="fld"><span class="lab">what is it</span><input type="text" id="lsTitle" placeholder="skateboard deck" maxlength="40"></label>
+    <label class="fld"><span class="lab">price</span><input type="text" id="lsPrice" placeholder="$40 / obo / free" maxlength="20"></label>
+    <label class="fld"><span class="lab">description</span><input type="text" id="lsDesc" placeholder="barely used, no chips" maxlength="120"></label>
+    <button class="btn btn-ghost" id="lsPhotoBtn" style="margin-top:14px;display:none;">📷 add a photo</button>
+    <div id="lsPhotoPreview" style="margin-top:10px;"></div>
+    <div style="display:flex;gap:10px;margin-top:18px;"><button class="btn btn-ghost" id="lsCancel">cancel</button><button class="btn btn-green" id="lsSave">post it</button></div>
+    <input type="file" id="lsFile" accept="image/*" class="hidden-file">
+  </div>
+</div>
+
+<div class="modal" id="fbModal">
+  <div class="sheet">
+    <h3>report a bug or idea</h3>
+    <div class="vice-row" style="margin-top:10px;">
+      <div class="vice" id="fbBug">🐛 bug</div>
+      <div class="vice" id="fbIdea">💡 idea</div>
+    </div>
+    <div id="fbBugFields">
+      <label class="fld"><span class="lab">what went wrong?</span><input type="text" id="fbText" placeholder="e.g. the app froze" maxlength="160"></label>
+      <label class="fld"><span class="lab">what were you doing when it happened?</span><input type="text" id="fbSteps" placeholder="e.g. tapped 'declare' then picked skatepark" maxlength="200"></label>
+      <label class="fld"><span class="lab">which screen?</span><input type="text" id="fbWhere" placeholder="e.g. hangout page / chat / calendar" maxlength="60"></label>
+      <label class="fld"><span class="lab">your phone</span>
+        <div class="vice-row"><div class="vice" id="fbiPhone">iPhone</div><div class="vice" id="fbAndroid">Samsung/Android</div></div>
+      </label>
+    </div>
+    <div id="fbIdeaFields" style="display:none;">
+      <label class="fld"><span class="lab">your idea</span><input type="text" id="fbIdeaText" placeholder="what should we add?" maxlength="200"></label>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;"><button class="btn btn-ghost" id="fbCancel">cancel</button><button class="btn btn-blue" id="fbSave">send report</button></div>
+  </div>
+</div>
+
+<div class="modal" id="editHangModal">
+  <div class="sheet">
+    <h3>edit hangout</h3>
+    <label class="fld"><span class="lab">date</span><input type="date" id="ehDate"></label>
+    <label class="fld"><span class="lab">start time</span><input type="time" id="ehTime"></label>
+    <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-ghost" id="ehCancel">cancel</button><button class="btn btn-orange" id="ehSave">save</button></div>
+  </div>
+</div>
+
+<div class="modal" id="eventModal">
+  <div class="sheet">
+    <h3>add an event</h3>
+    <label class="fld"><span class="lab">what is it</span><input type="text" id="evTitle" placeholder="movie night" maxlength="40"></label>
+    <label class="fld"><span class="lab">date</span><input type="date" id="evDate"></label>
+    <label class="fld"><span class="lab">time</span><input type="time" id="evTime"></label>
+    <label class="fld"><span class="lab">where (optional)</span><input type="text" id="evWhere" placeholder="jake's place" maxlength="40"></label>
+    <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-ghost" id="evCancel">cancel</button><button class="btn btn-green" id="evSave">add it</button></div>
+  </div>
+</div>
+
+<div class="modal" id="roleModal">
+  <div class="sheet">
+    <h3 id="roleName">member</h3>
+    <div class="note" style="margin-bottom:6px;">set what this person can do.</div>
+    <div class="toggle-row"><span class="tt">🛡️ admin (approve, kick, ban)</span><div class="switch" id="roleAdmin"><i></i></div></div>
+    <button class="btn btn-leave" id="roleKick" style="margin-top:16px;">👢 kick from group</button>
+    <button class="btn btn-leave" id="roleBan" style="margin-top:10px;border-color:var(--pink);color:var(--pink);">🚫 ban from group</button>
+    <div style="display:flex;gap:10px;margin-top:18px;"><button class="btn btn-ghost" id="roleCancel">close</button><button class="btn btn-blue" id="roleSave">save role</button></div>
+  </div>
+</div>
+
+<div id="gateRemoved" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+  <div style="font-size:56px;">🚫</div>
+  <h2 style="font-family:var(--fdisp);font-weight:700;font-size:24px;margin:14px 0 8px;color:var(--ink);">you've been removed</h2>
+  <p style="color:var(--ink-dim);font-weight:600;font-size:15px;">an admin removed you from the Yasaki group. reach out to them if you think it's a mistake.</p>
+</div>
+
+<div id="gatePending" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:600;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+  <div style="font-size:56px;">⏳</div>
+  <h2 style="font-family:var(--fdisp);font-weight:700;font-size:24px;margin:14px 0 8px;color:var(--ink);">waiting for approval</h2>
+  <p style="color:var(--ink-dim);font-weight:600;font-size:15px;">an admin needs to let you into the group. you'll be in as soon as they approve you — check back in a bit.</p>
+</div>
+
+<div id="notifWalk" style="display:none;position:fixed;inset:0;background:rgba(20,20,40,.55);z-index:550;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:var(--bg);border-radius:24px;max-width:380px;width:100%;padding:26px 22px calc(26px + env(safe-area-inset-bottom));box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;">
+    <div style="font-size:52px;">🔔</div>
+    <h2 style="font-family:var(--fdisp);font-weight:700;font-size:23px;margin:10px 0 6px;color:var(--ink);">turn on notifications</h2>
+    <p style="color:var(--ink-dim);font-weight:600;font-size:14px;line-height:1.55;margin:0 0 16px;">get a buzz when a hangout starts, someone joins, a ride's confirmed, or the crew's chatting.</p>
+    <div style="text-align:left;background:var(--card2);border-radius:14px;padding:14px 16px;font-size:13.5px;font-weight:600;color:var(--ink-dim);line-height:1.7;">
+      <div><b style="color:var(--ink);">1.</b> tap <b style="color:var(--ink);">allow buzz</b> below</div>
+      <div><b style="color:var(--ink);">2.</b> your phone asks permission → tap <b style="color:var(--ink);">Allow</b></div>
+      <div style="margin-top:6px;font-size:12px;color:var(--ink-faint);">📱 on iPhone: works best after you "Add to Home Screen" and open it from there.</div>
+    </div>
+    <button class="btn btn-blue" id="walkAllow" style="margin-top:18px;">🔔 allow buzz</button>
+    <button class="btn btn-ghost" id="walkSkip" style="margin-top:10px;">maybe later</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, updateDoc, deleteDoc, addDoc, query, orderBy, limit, where }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+/* ⬇⬇⬇  YOUR FIREBASE CONFIG  ⬇⬇⬇ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCqFwRkyA-Qn8hzuWNEz739C_Os6BEDJm4",
+  authDomain: "yasaki-92549.firebaseapp.com",
+  projectId: "yasaki-92549",
+  storageBucket: "yasaki-92549.firebasestorage.app",
+  messagingSenderId: "103686912020",
+  appId: "1:103686912020:web:b5dad852958b8b2de3cf01"
+};
+/* ⬆⬆⬆  YOUR FIREBASE CONFIG  ⬆⬆⬆ */
+
+const STORAGE_ENABLED = false;
+const VOTE_HOURS = 4;
+
+const $ = id => document.getElementById(id);
+
+if (firebaseConfig.apiKey.includes("PASTE")) { $('setupGate').style.display='flex'; }
+else { startApp(); }
+
+function startApp(){
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  const AVATAR_COLORS = ['#23c55e','#3b8dff','#ff5ea0','#ff8a39','#a06bff','#ffc23d','#2dd4bf'];
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+  let ME=null, SPOTS=[], VICES=[], CURRENT=null, pendingPfp=null, decSel=null, spotEditMode=false, viceEditMode=false, editingSpot=null, pendingSpotLoc=null, roleTarget=null;
+  let unsubHome=null, unsubAtt=null, unsubMedia=null, unsubHangout=null, unsubSpots=null, unsubChat=null, unsubVotes=null, unsubFeed=null, unsubVices=null;
+  let viewingProfile=null, viewingProfileName='', editingEvent=null, unsubComments=null, unsubChatTab=null, unsubCal=null, unsubHchat=null;
+  let prefs = JSON.parse(localStorage.getItem('yasaki_prefs')||'{"dark":false,"notif":true,"push":false}');
+  let prefsRestored=false;
+  let lastSeenFeed = +(localStorage.getItem('yasaki_seenfeed')||0);
+  let knownFeed = new Set();
+
+  function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
+  function initials(n){ return (n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase()||'?'; }
+  function colorFor(s){ let h=0; for(const c of (s||'x')) h=(h*31+c.charCodeAt(0))>>>0; return AVATAR_COLORS[h%AVATAR_COLORS.length]; }
+  function avatarHTML(p, cls='avatar'){ if(p&&p.pfp) return `<img class="${cls}" src="${p.pfp}" alt="">`; const nm=p?p.name:'?'; return `<span class="${cls}" style="background:${colorFor(nm)}">${initials(nm)}</span>`; }
+  function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function fmtTime(t){ if(!t) return ''; const [H,M]=t.split(':').map(Number); const ap=H>=12?'pm':'am'; const h=((H+11)%12)+1; return `${h}:${String(M).padStart(2,'0')}${ap}`; }
+  function fmtDate(ds){ if(!ds) return ''; const d=new Date(ds+'T00:00:00'); const today=new Date(); today.setHours(0,0,0,0); const diff=Math.round((d-today)/86400000); if(diff===0) return 'today'; if(diff===1) return 'tomorrow'; if(diff===-1) return 'yesterday'; return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}); }
+  function roundedNow(){ const d=new Date(); d.setMinutes(Math.ceil(d.getMinutes()/15)*15); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function ago(t){ const s=(Date.now()-t)/1000; if(s<60)return 'just now'; if(s<3600)return Math.floor(s/60)+'m ago'; if(s<86400)return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
+  function resizeImage(file,max,q){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const img=new Image(); img.onload=()=>{ let {width:w,height:h}=img; if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;} const c=document.createElement('canvas'); c.width=w;c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); res(c.toDataURL('image/jpeg',q)); }; img.onerror=rej; img.src=r.result; }; r.onerror=rej; r.readAsDataURL(file); }); }
+  function dataURLToBlob(d){ const [hd,b]=d.split(','); const mime=hd.match(/:(.*?);/)[1]; const bin=atob(b); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return new Blob([u],{type:mime}); }
+  function toggle(el){ el.onclick=()=>el.classList.toggle('on'); }
+  // names: letters (incl. accents), spaces, hyphens, apostrophes only — no digits/symbols/emoji
+  function cleanName(raw){
+    const n=(raw||'').trim().replace(/\s+/g,' ');
+    if(n.length<2) return {ok:false, msg:'name needs at least 2 letters'};
+    if(/[0-9]/.test(n)) return {ok:false, msg:'no numbers in names'};
+    if(!/^[\p{L} '\-]+$/u.test(n)) return {ok:false, msg:'letters only — no symbols or emoji'};
+    return {ok:true, name:n};
+  }
+  function applyTheme(){ document.documentElement.setAttribute('data-theme', prefs.dark?'dark':'light'); }
+  function savePrefs(){ localStorage.setItem('yasaki_prefs', JSON.stringify(prefs)); try{ setDoc(doc(db,'users',ME.id),{prefs},{merge:true}); }catch(e){} }
+
+  /* ---- notifications ---- */
+  async function pushFeed(icon, text, actorId){
+    try{ await addDoc(collection(db,'feed'), {icon, text, t:Date.now(), actor: actorId || ME.id}); }catch(e){}
+  }
+  function localNotify(text){
+    if(!prefs.push) return;
+    try{ if('Notification' in window && Notification.permission==='granted'){ new Notification('Yasaki', {body:text}); } }catch(e){}
+  }
+
+  applyTheme();
+
+  (async function boot(){
+    ME = JSON.parse(localStorage.getItem('yasaki_me')||'null');
+    await ensureSpots(); await ensureVices();
+    wireOnboarding(); wireApp();
+    if(ME){ enterApp(); } else { $('onboarding').style.display='flex'; }
+  })();
+
+  async function ensureSpots(){
+    const snap = await getDocs(collection(db,'spots'));
+    if(snap.empty){
+      // fixed IDs: if this ever runs twice (two phones at once), it overwrites
+      // the same 3 docs instead of creating duplicates.
+      const defs=[
+        {id:'seed-skatepark', emoji:'🛹', name:'Skatepark'},
+        {id:'seed-graffiti',  emoji:'🎨', name:'Graffiti Spot'},
+        {id:'seed-anderson',  emoji:'⛺', name:'Anderson Shelter'}
+      ];
+      for(const d of defs){ await setDoc(doc(db,'spots',d.id), {emoji:d.emoji, name:d.name}); }
+    }
+    unsubSpots = onSnapshot(collection(db,'spots'), s=>{ SPOTS=s.docs.map(d=>({id:d.id,...d.data()})); if($('v-declare').classList.contains('active')) renderSpotGrid(); });
+  }
+  async function ensureVices(){
+    const snap = await getDocs(collection(db,'vices'));
+    if(snap.empty){
+      for(const v of [{label:'nic',cls:'nic',order:1},{label:'yart',cls:'yart',order:2},{label:'alc',cls:'alc',order:3}]) await setDoc(doc(db,'vices',v.label), v);
+    }
+    unsubVices = onSnapshot(collection(db,'vices'), s=>{ VICES=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||99)-(b.order||99)); if($('joinedBox').style.display==='block') refreshViceRow(); });
+  }
+
+  function enterApp(){
+    $('onboarding').style.display='none'; $('app').style.display='block';
+    renderMeChip(); setupMediaUI(); applyPrefUI();
+    showView('home'); listenHome(); listenFeed(); watchMyStatus(); watchConfig(); listenDMsGlobal();
+    // keep push on by default — ask once, and if the browser already granted it, stay on
+    if('Notification' in window){
+      if(Notification.permission==='granted'){ prefs.push=true; applyPrefUI(); savePrefs(); }
+      else if(prefs.push){ requestPush(true); }
+    }
+    // one-time notification walkthrough — runs once per device, on first open
+    if(!localStorage.getItem('yasaki_notifwalk')){
+      setTimeout(()=>{ $('notifWalk').style.display='flex'; }, 700);
+    }
+  }
+  function watchMyStatus(){
+    onSnapshot(doc(db,'users',ME.id), d=>{
+      if(!d.exists()){ // removed entirely (kicked)
+        localStorage.removeItem('yasaki_me'); $('app').style.display='none'; $('gateRemoved').style.display='flex'; return;
+      }
+      const u=d.data();
+      ME.role=u.role||'member'; ME.status=u.status||'active';
+      localStorage.setItem('yasaki_me', JSON.stringify(ME));
+      // restore saved settings from the cloud (survives iOS clearing localStorage)
+      if(u.prefs && !prefsRestored){
+        prefsRestored=true;
+        prefs={dark:!!u.prefs.dark, notif:u.prefs.notif!==false, push:!!u.prefs.push};
+        localStorage.setItem('yasaki_prefs', JSON.stringify(prefs));
+        applyTheme(); applyPrefUI();
+      }
+      if(u.status==='banned'){ $('app').style.display='none'; $('gatePending').style.display='none'; $('gateRemoved').style.display='flex'; return; }
+      if(u.status==='pending'){ $('app').style.display='none'; $('gateRemoved').style.display='none'; $('gatePending').style.display='flex'; return; }
+      // active
+      $('gateRemoved').style.display='none'; $('gatePending').style.display='none'; $('app').style.display='block';
+      $('settingsBtn').dataset.admin = (ME.role==='owner'||ME.role==='admin')?'1':'';
+      $('ownerSettings').style.display = (ME.role==='owner')?'block':'none';
+    });
+  }
+  function isAdmin(){ return ME.role==='owner'||ME.role==='admin'; }
+  function setupMediaUI(){ if(STORAGE_ENABLED) return; $('addMedia').style.display='none'; $('mediaGrid').innerHTML=''; const note=document.querySelectorAll('#v-detail .note'); if(note[note.length-1]) note[note.length-1].textContent='photos & videos are off for now — turn on Firebase Storage later.'; }
+  function applyPrefUI(){ $('setDark').classList.toggle('on',prefs.dark); $('setNotif').classList.toggle('on',prefs.notif); $('setPush').classList.toggle('on',prefs.push); }
+  function renderMeChip(){ $('meAv').outerHTML=avatarHTML(ME,'avatar'); $('meName').textContent=ME.name; }
+  function showView(n){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $('v-'+n).classList.add('active'); window.scrollTo(0,0); }
+
+  function profileDoc(){ return {name:ME.name,nameKey:(ME.name||'').toLowerCase(),pin:ME.pin||'',pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense,role:ME.role||'member',status:ME.status||'active'}; }
+
+  function wireOnboarding(){
+    $('onbPfp').onclick=()=>$('onbFile').click();
+    $('onbFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const d=await resizeImage(f,220,.72); pendingPfp=d; $('onbPfp').style.background='transparent'; $('onbPfp').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`; };
+    $('onbName').oninput=e=>{ e.target.value=e.target.value.replace(/[^\p{L} '\-]/gu,''); if(!pendingPfp){ const n=e.target.value; $('onbPfp').style.background=colorFor(n); $('onbPfp').textContent=initials(n); } };
+    $('onbPin').oninput=e=>{ e.target.value=e.target.value.replace(/[^0-9]/g,''); };
+    $('backPin').oninput=e=>{ e.target.value=e.target.value.replace(/[^0-9]/g,''); };
+    $('backName').oninput=e=>{ e.target.value=e.target.value.replace(/[^\p{L} '\-]/gu,''); };
+    ['onbCar','onbLic'].forEach(id=>toggle($(id)));
+
+    // mode switch
+    $('onbModeNew').onclick=()=>{ $('onbModeNew').classList.add('on'); $('onbModeBack').classList.remove('on'); $('onbNew').style.display='block'; $('onbBack').style.display='none'; };
+    $('onbModeBack').onclick=()=>{ $('onbModeBack').classList.add('on'); $('onbModeNew').classList.remove('on'); $('onbBack').style.display='block'; $('onbNew').style.display='none'; };
+
+    // new account
+    $('onbGo').onclick=async ()=>{
+      const chk=cleanName($('onbName').value); if(!chk.ok){ toast(chk.msg); return; }
+      const name=chk.name; const pin=$('onbPin').value.trim();
+      if(pin.length!==4){ toast('pick a 4-digit PIN'); return; }
+      let existing;
+      try{ existing=await getDocs(collection(db,'users')); }catch(e){ toast('connection issue, try again'); return; }
+      // name already taken? send them to log in instead of making a double
+      const taken=existing.docs.find(d=>(d.data().nameKey||d.data().name?.toLowerCase())===name.toLowerCase());
+      if(taken){ toast('that name exists — use "log back in"'); $('onbModeBack').click(); $('backName').value=name; return; }
+      const role = existing.empty ? 'owner' : 'member';
+      ME={ id:uid(), name, pin, pfp:pendingPfp||null, hasCar:$('onbCar').classList.contains('on'), hasLicense:$('onbLic').classList.contains('on'), role, status:'active' };
+      localStorage.setItem('yasaki_me',JSON.stringify(ME));
+      await setDoc(doc(db,'users',ME.id), profileDoc());
+      await pushFeed('🙌', `${ME.name} joined Yasaki`);
+      enterApp();
+    };
+
+    // log back in
+    $('backGo').onclick=async ()=>{
+      const nm=$('backName').value.trim(); const pin=$('backPin').value.trim();
+      if(!nm||pin.length!==4){ toast('enter your name and 4-digit PIN'); return; }
+      let snap;
+      try{ snap=await getDocs(collection(db,'users')); }catch(e){ toast('connection issue, try again'); return; }
+      const found=snap.docs.find(d=>{ const u=d.data(); return (u.nameKey||u.name?.toLowerCase())===nm.toLowerCase(); });
+      if(!found){ toast('no account with that name'); return; }
+      const u=found.data();
+      if(u.status==='banned'){ $('onboarding').style.display='none'; $('gateRemoved').style.display='flex'; return; }
+      if((u.pin||'')!==pin){ toast('wrong PIN'); return; }
+      ME={ id:found.id, name:u.name, pin:u.pin, pfp:u.pfp||null, hasCar:!!u.hasCar, hasLicense:!!u.hasLicense, role:u.role||'member', status:u.status||'active' };
+      localStorage.setItem('yasaki_me',JSON.stringify(ME));
+      toast('welcome back 👋');
+      enterApp();
+    };
+  }
+
+  /* ---- feed / bell ---- */
+  function listenFeed(){
+    if(unsubFeed) unsubFeed();
+    const qy=query(collection(db,'feed'), orderBy('t','desc'), limit(40));
+    unsubFeed=onSnapshot(qy, snap=>{
+      const items=snap.docs.map(d=>({id:d.id,...d.data()})).filter(it=>it.actor!==ME.id);
+      let unread=0;
+      items.forEach(it=>{ if(it.t>lastSeenFeed) unread++; if(!knownFeed.has(it.id)){ knownFeed.add(it.id); if(it.t>lastSeenFeed && it.t>Date.now()-15000){ localNotify(it.text); } } });
+      const dot=$('bellDot');
+      if(prefs.notif && unread>0){ dot.style.display='grid'; dot.textContent=unread>9?'9+':unread; } else dot.style.display='none';
+      if($('v-feed').classList.contains('active')) renderFeed(items);
+    });
+  }
+  function renderFeed(items){
+    const wrap=$('feedList');
+    if(!items.length){ wrap.innerHTML=`<div class="empty">nothing yet.</div>`; return; }
+    wrap.innerHTML=items.map(it=>`<div class="feed-item ${it.t>lastSeenFeed?'unread':''}"><div class="fi">${it.icon||'🔔'}</div><div><div class="ft">${esc(it.text)}</div><div class="fd">${ago(it.t)}</div></div></div>`).join('');
+  }
+  function openFeed(){ lastSeenFeed=Date.now(); localStorage.setItem('yasaki_seenfeed',lastSeenFeed); $('bellDot').style.display='none'; showView('feed'); getDocs(query(collection(db,'feed'),orderBy('t','desc'),limit(40))).then(s=>renderFeed(s.docs.map(d=>({id:d.id,...d.data()})).filter(it=>it.actor!==ME.id))); }
+
+  async function requestPush(silent){
+    if(!('Notification' in window)){ if(!silent) toast('this browser has no push'); prefs.push=false; applyPrefUI(); savePrefs(); return; }
+    try{
+      const perm = await Notification.requestPermission();
+      if(perm==='granted'){ prefs.push=true; if(!silent) toast('phone buzz on 📳'); }
+      else { prefs.push=false; if(!silent) toast('permission denied'); }
+    }catch(e){ prefs.push=false; if(!silent) toast('couldn\'t enable'); }
+    applyPrefUI(); savePrefs();
+  }
+
+  function listenHome(){
+    if(unsubHome) unsubHome();
+    unsubHome = onSnapshot(collection(db,'hangouts'), async snap=>{
+      const items=[]; const cutoff=new Date(); cutoff.setHours(0,0,0,0); cutoff.setDate(cutoff.getDate()-1);
+      const todayStr=new Date().toISOString().slice(0,10);
+      for(const d of snap.docs){ const h={id:d.id,...d.data()}; if(h.date && new Date(h.date+'T00:00:00') < cutoff) continue; const a=await getDocs(collection(db,'hangouts',d.id,'attendees')); items.push({h,count:a.size}); }
+      // live/today first, then by date/time ascending, newest-created as tiebreak
+      items.sort((a,b)=>{
+        const aToday=(!a.h.date||a.h.date===todayStr)?0:1, bToday=(!b.h.date||b.h.date===todayStr)?0:1;
+        if(aToday!==bToday) return aToday-bToday;
+        const ad=(a.h.date||'')+(a.h.time||''), bd=(b.h.date||'')+(b.h.time||'');
+        if(ad!==bd) return ad<bd?-1:1;
+        return (b.h.createdAt||0)-(a.h.createdAt||0);
+      });
+      $('liveCount').textContent=items.length?`(${items.length})`:'';
+      const wrap=$('homeList');
+      if(!items.length){ wrap.innerHTML=`<div class="empty">nothing live right now.<br>be the one to <b style="color:var(--orange)">declare</b> something 🔥</div>`; return; }
+      wrap.innerHTML=items.map(({h,count})=>{
+        const live=(!h.date||h.date===todayStr);
+        const adminDel=isAdmin()?`<button class="btn btn-leave btn-sm" data-hdel="${h.id}" data-hname="${esc(h.name)}" style="flex:none;padding:7px 10px;margin-left:4px;">✕</button>`:'';
+        return `<div class="hcard"><div class="spot-emoji" data-open="${h.id}">${h.emoji}</div><div class="hc-body" data-open="${h.id}"><div class="hc-title">${esc(h.name)} ${live?'<span class="badge b-drive" style="vertical-align:middle;">live</span>':''}</div><div class="hc-meta"><span>${h.date?esc(fmtDate(h.date))+' ':''}<span class="t">${fmtTime(h.time)}</span></span><span>by ${esc(h.hostName)}</span></div></div><div class="count-pill" data-open="${h.id}">${count} 👥</div>${adminDel}</div>`;
+      }).join('');
+    });
+  }
+
+  function roleBadge(u){
+    if(u.role==='owner') return '<span class="badge" style="background:var(--yellow);color:#1c1c24;">👑 owner</span>';
+    if(u.role==='admin') return '<span class="badge" style="background:var(--purple);">🛡️ admin</span>';
+    return '';
+  }
+  function openFriends(){
+    showView('friends');
+    $('crewList').innerHTML=`<div class="empty">loading…</div>`;
+    getDocs(collection(db,'users')).then(snap=>{
+      const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const pending=all.filter(u=>u.status==='pending');
+      const active=all.filter(u=>u.status!=='pending'&&u.status!=='banned').sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+      // pending section (admins only)
+      if(isAdmin() && pending.length){
+        $('pendingWrap').style.display='block';
+        $('pendingList').innerHTML=pending.map(u=>`<div class="att"><div class="ab"><div class="an">${esc(u.name)}</div></div><div style="display:flex;gap:6px;"><button class="btn btn-green btn-sm" data-approve="${u.id}">approve</button><button class="btn btn-leave btn-sm" data-deny="${u.id}">deny</button></div></div>`).join('');
+      } else $('pendingWrap').style.display='none';
+      $('crewCount').textContent=active.length?`(${active.length})`:'';
+      if(!active.length){ $('crewList').innerHTML=`<div class="empty">no one's in yet.</div>`; return; }
+      $('crewList').innerHTML=active.map(u=>{
+        const isMe=u.id===ME.id;
+        const mini=[u.hasCar?'🚗 car':'',u.hasLicense?'🪪 licensed':''].filter(Boolean).join(' · ');
+        const manage = (isAdmin() && !isMe && u.role!=='owner') ? `<button class="btn btn-ghost btn-sm" data-manage="${u.id}" data-mname="${esc(u.name)}" data-mrole="${u.role||'member'}">manage</button>` : '';
+        return `<div class="att" data-profile="${u.id}" data-pname="${esc(u.name)}" style="cursor:pointer;">${avatarHTML(u,'av avatar')}<div class="ab"><div class="an">${esc(u.name)}${isMe?'<span class="badge b-you">you</span>':''}${roleBadge(u)}</div>${mini?`<div class="am">${mini}</div>`:''}</div>${manage}</div>`;
+      }).join('');
+    }).catch(()=>{ $('crewList').innerHTML=`<div class="empty">couldn't load the crew.</div>`; });
+  }
+
+  function setChatPane(which){
+    const hasHang=!!CURRENT;
+    if(which==='hang' && !hasHang){ which='crew'; }
+    $('chatTrack').style.transform = which==='hang' ? 'translateX(-50%)' : 'translateX(0)';
+    $('chatTabCrew').classList.toggle('on', which==='crew');
+    $('chatTabHang').classList.toggle('on', which==='hang');
+  }
+  function openChat(){
+    showView('chat');
+    const hasHang=!!CURRENT;
+    $('chatTabHang').style.display = hasHang ? 'block':'none';
+    $('chatTabCrew').style.flex = hasHang ? '1':'1';
+    setChatPane('crew');
+    // crew chat
+    if(unsubChatTab) unsubChatTab();
+    unsubChatTab=onSnapshot(query(collection(db,'chat'),orderBy('t','asc'),limit(120)), snap=>{
+      renderMsgs($('chatBox'), snap.docs.map(d=>d.data()), 'message the crew');
+    });
+    // hangout chat (only if in one)
+    if(unsubHchat){ unsubHchat(); unsubHchat=null; }
+    if(hasHang){
+      const hid=CURRENT;
+      unsubHchat=onSnapshot(query(collection(db,'hangouts',hid,'chat'),orderBy('t','asc'),limit(120)), snap=>{
+        renderMsgs($('hchatBox'), snap.docs.map(d=>d.data()), 'say something 👋');
+      });
+    } else {
+      $('hchatBox').innerHTML=`<div class="empty" style="padding:14px;">join a hangout to chat in it.</div>`;
+    }
+  }
+  function renderMsgs(box, msgs, emptyHint){
+    if(!msgs.length){ box.innerHTML=`<div class="empty" style="padding:14px;">no messages yet — ${emptyHint}</div>`; return; }
+    box.innerHTML=msgs.map(m=>`<div class="msg ${m.uid===ME.id?'me':'them'}">${m.uid===ME.id?'':`<div class="who">${esc(m.name)}</div>`}${esc(m.text)}</div>`).join('');
+    box.scrollTop=box.scrollHeight;
+  }
+  function openCal(){
+    showView('cal');
+    if(unsubCal) unsubCal();
+    unsubCal=onSnapshot(collection(db,'events'), snap=>{
+      const today=new Date(); today.setHours(0,0,0,0);
+      const evs=snap.docs.map(d=>({id:d.id,...d.data()}))
+        .filter(ev=>!ev.date || new Date(ev.date+'T00:00:00')>=today)
+        .sort((a,b)=>((a.date||'')+(a.time||'')).localeCompare((b.date||'')+(b.time||'')));
+      const wrap=$('calList');
+      if(!evs.length){ wrap.innerHTML=`<div class="empty">no upcoming events.<br>hit ＋ event to add one 📅</div>`; return; }
+      wrap.innerHTML=evs.map(ev=>{
+        const going=ev.going||{}; const names=Object.values(going); const iGo=!!going[ME.id];
+        const canDel=(ev.byId===ME.id)||isAdmin();
+        return `<div class="hcard" style="cursor:default;flex-direction:column;align-items:stretch;gap:8px;">
+          <div style="display:flex;align-items:center;gap:13px;">
+            <div class="spot-emoji">📅</div>
+            <div class="hc-body"><div class="hc-title">${esc(ev.title)}</div><div class="hc-meta"><span>${ev.date?esc(fmtDate(ev.date)):''} <span class="t">${fmtTime(ev.time)}</span></span>${ev.where?`<span>📍 ${esc(ev.where)}</span>`:''}<span>by ${esc(ev.by)}</span></div></div>
+            ${canDel?`<button class="btn btn-ghost btn-sm" data-evedit="${ev.id}" style="flex:none;padding:7px 11px;">✏️</button><button class="btn btn-leave btn-sm" data-evdel="${ev.id}" style="flex:none;padding:7px 11px;">✕</button>`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <button class="btn ${iGo?'btn-green':'btn-ghost'} btn-sm" data-going="${ev.id}">${iGo?'✓ going':'count me in'}</button>
+            <span class="am" style="color:var(--ink-dim);font-weight:700;">${names.length?names.length+' going: '+names.map(esc).join(', '):'no one yet'}</span>
+          </div>
+        </div>`;
+      }).join('');
+    });
+  }
+
+  async function archiveHangout(hid){
+    try{
+      const hs=await getDoc(doc(db,'hangouts',hid)); if(!hs.exists()) return;
+      const h=hs.data();
+      const atts=await getDocs(collection(db,'hangouts',hid,'attendees'));
+      const who=atts.docs.map(d=>d.data().name);
+      await setDoc(doc(db,'past',hid),{name:h.name,emoji:h.emoji,date:h.date||'',time:h.time||'',hostName:h.hostName||'',who,endedAt:Date.now()});
+    }catch(e){}
+  }
+  let unsubMarket=null, unsubFb=null, lsPendingPhoto=null, fbKind='bug';
+  let unsubDmList=null, unsubDmThread=null, unsubDmGlobal=null, dmOther=null, dmThreadId=null, dmReads={}, pickingDM=false;
+
+  function dmId(a,b){ return [a,b].sort().join('_'); }
+
+  // global listener: badge + notify for incoming DMs while app is open
+  function listenDMsGlobal(){
+    if(unsubDmGlobal) unsubDmGlobal();
+    dmReads = JSON.parse(localStorage.getItem('yasaki_dmreads')||'{}');
+    unsubDmGlobal=onSnapshot(query(collection(db,'dms'), where('members','array-contains',ME.id)), snap=>{
+      let unread=0;
+      snap.docs.forEach(d=>{
+        const t=d.data(); const lastT=t.lastT||0; const seen=dmReads[d.id]||0;
+        if(t.lastBy && t.lastBy!==ME.id && lastT>seen){
+          unread++;
+          if(lastT>Date.now()-15000 && !dmNotified.has(d.id+lastT)){ dmNotified.add(d.id+lastT); localNotify(`${t.lastByName||'someone'}: ${t.last||''}`); }
+        }
+      });
+      const b=$('dmBadge'); if(prefs.notif && unread>0){ b.style.display='grid'; b.textContent=unread>9?'9+':unread; } else b.style.display='none';
+      if($('v-dms').classList.contains('active')) renderDmList(snap.docs.map(d=>({id:d.id,...d.data()})));
+    });
+  }
+  const dmNotified=new Set();
+
+  function openDMs(){
+    showView('dms');
+    if(unsubDmList) unsubDmList();
+    unsubDmList=onSnapshot(query(collection(db,'dms'), where('members','array-contains',ME.id)), snap=>{
+      renderDmList(snap.docs.map(d=>({id:d.id,...d.data()})));
+    });
+  }
+  function renderDmList(threads){
+    threads.sort((a,b)=>(b.lastT||0)-(a.lastT||0));
+    const wrap=$('dmList');
+    if(!threads.length){ wrap.innerHTML=`<div class="empty">no messages yet.<br>hit ＋ new to message someone ✉️</div>`; return; }
+    wrap.innerHTML=threads.map(t=>{
+      const otherId=(t.members||[]).find(x=>x!==ME.id)||''; const otherName=(t.names||{})[otherId]||'friend';
+      const unread = t.lastBy && t.lastBy!==ME.id && (t.lastT||0)>(dmReads[t.id]||0);
+      return `<div class="att" data-dm="${otherId}" data-dmname="${esc(otherName)}" style="cursor:pointer;"><span class="av avatar" style="background:${colorFor(otherName)}">${initials(otherName)}</span><div class="ab"><div class="an">${esc(otherName)}${unread?' <span class="badge b-ride">new</span>':''}</div><div class="am" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.lastBy===ME.id?'you: ':''}${esc(t.last||'')}</div></div></div>`;
+    }).join('');
+  }
+
+  function openDM(otherId, otherName){
+    dmOther={id:otherId,name:otherName}; dmThreadId=dmId(ME.id,otherId);
+    showView('dm');
+    $('dmWith').textContent=otherName;
+    $('dmAvatar').innerHTML=`<span class="avatar" style="width:48px;height:48px;border-radius:14px;font-size:18px;background:${colorFor(otherName)}">${initials(otherName)}</span>`;
+    $('dmBox').innerHTML=`<div class="empty" style="padding:14px;">loading…</div>`;
+    if(unsubDmThread) unsubDmThread();
+    unsubDmThread=onSnapshot(query(collection(db,'dms',dmThreadId,'messages'),orderBy('t','asc'),limit(200)), snap=>{
+      const msgs=snap.docs.map(d=>d.data());
+      const box=$('dmBox');
+      if(!msgs.length){ box.innerHTML=`<div class="empty" style="padding:14px;">say hey 👋</div>`; }
+      else box.innerHTML=msgs.map(m=>`<div class="msg ${m.uid===ME.id?'me':'them'}">${esc(m.text)}</div>`).join('');
+      box.scrollTop=box.scrollHeight;
+      // mark read
+      dmReads[dmThreadId]=Date.now(); localStorage.setItem('yasaki_dmreads', JSON.stringify(dmReads));
+      $('dmBadge').style.display='none';
+    });
+  }
+  async function sendDM(){
+    const t=$('dmIn').value.trim(); if(!t||!dmThreadId) return; $('dmIn').value='';
+    await setDoc(doc(db,'dms',dmThreadId),{ members:[ME.id,dmOther.id], names:{[ME.id]:ME.name,[dmOther.id]:dmOther.name}, last:t, lastT:Date.now(), lastBy:ME.id, lastByName:ME.name },{merge:true});
+    await addDoc(collection(db,'dms',dmThreadId,'messages'),{uid:ME.id,name:ME.name,text:t,t:Date.now()});
+  }
+
+  function openMarket(){
+    showView('market'); $('lsPhotoBtn').style.display = STORAGE_ENABLED ? 'block' : 'none';
+    if(unsubMarket) unsubMarket();
+    unsubMarket=onSnapshot(query(collection(db,'market'),orderBy('t','desc'),limit(80)), snap=>{
+      const items=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const wrap=$('marketList');
+      if(!items.length){ wrap.innerHTML=`<div class="empty">nothing for sale yet.<br>hit ＋ sell to list something 🛒</div>`; return; }
+      wrap.innerHTML=items.map(it=>{
+        const mine=it.byId===ME.id; const canDel=mine||isAdmin();
+        return `<div class="hcard" style="cursor:default;flex-direction:column;align-items:stretch;gap:10px;${it.sold?'opacity:.55;':''}">
+          <div style="display:flex;align-items:center;gap:13px;">
+            ${it.photo?`<img src="${it.photo}" style="width:60px;height:60px;border-radius:12px;object-fit:cover;flex:none;">`:`<div class="spot-emoji">🛒</div>`}
+            <div class="hc-body"><div class="hc-title">${esc(it.title)} ${it.sold?'<span class="badge" style="background:var(--ink-faint);">sold</span>':''}</div><div class="hc-meta"><span class="t" style="color:var(--green);">${esc(it.price)}</span><span>by ${esc(it.by)}</span></div>${it.desc?`<div class="am" style="color:var(--ink-dim);margin-top:4px;">${esc(it.desc)}</div>`:''}</div>
+          </div>
+          ${mine?`<div style="display:flex;gap:8px;"><button class="btn ${it.sold?'btn-ghost':'btn-green'} btn-sm" data-sold="${it.id}" data-s="${it.sold?0:1}">${it.sold?'mark available':'✓ mark as sold'}</button>${canDel?`<button class="btn btn-leave btn-sm" data-lsdel="${it.id}">delete</button>`:''}</div>`:(canDel?`<button class="btn btn-leave btn-sm" data-lsdel="${it.id}" style="align-self:flex-start;">remove (admin)</button>`:'')}
+        </div>`;
+      }).join('');
+    });
+  }
+
+  function openFeedback(){
+    showView('feedback');
+    if(unsubFb) unsubFb();
+    unsubFb=onSnapshot(query(collection(db,'feedback'),orderBy('t','desc'),limit(100)), snap=>{
+      let items=snap.docs.map(d=>({id:d.id,...d.data()}));
+      items.sort((a,b)=>(a.done?1:0)-(b.done?1:0) || (Object.keys(b.votes||{}).length)-(Object.keys(a.votes||{}).length));
+      const wrap=$('fbList');
+      if(!items.length){ wrap.innerHTML=`<div class="empty">no bugs or ideas posted yet.<br>hit ＋ post to add one 💡</div>`; return; }
+      wrap.innerHTML=items.map(it=>{
+        const votes=Object.keys(it.votes||{}).length; const iVoted=it.votes&&it.votes[ME.id];
+        const canDel=(it.byId===ME.id)||isAdmin();
+        return `<div class="ride-row ${it.done?'done':''}" style="align-items:flex-start;">
+          <div class="rl" style="flex:1;">${it.kind==='bug'?'🐛':'💡'} ${esc(it.text)}${it.kind==='bug'&&(it.steps||it.where||it.phone)?`<div class="am" style="font-weight:600;color:var(--ink-dim);margin-top:5px;line-height:1.5;">${it.steps?'▸ doing: '+esc(it.steps)+'<br>':''}${it.where?'▸ screen: '+esc(it.where)+'<br>':''}${it.phone?'▸ phone: '+esc(it.phone):''}</div>`:''}<div class="am" style="font-weight:700;color:var(--ink-faint);margin-top:4px;">by ${esc(it.by)}${it.done?' · ✅ done':''}</div></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex:none;">
+            <button class="btn ${iVoted?'btn-purple':'btn-ghost'} btn-sm" data-fbvote="${it.id}" style="padding:6px 10px;">▲ ${votes}</button>
+            ${isAdmin()?`<button class="btn btn-ghost btn-sm" data-fbdone="${it.id}" data-d="${it.done?0:1}" style="padding:6px 10px;">${it.done?'reopen':'done'}</button>`:''}
+            ${canDel?`<button class="btn btn-leave btn-sm" data-fbdel="${it.id}" style="padding:6px 10px;">✕</button>`:''}
+          </div>
+        </div>`;
+      }).join('');
+    });
+  }
+
+  function openPast(){
+    showView('past');
+    $('pastList').innerHTML=`<div class="empty">loading…</div>`;
+    getDocs(query(collection(db,'past'),orderBy('endedAt','desc'),limit(60))).then(snap=>{
+      const evs=snap.docs.map(d=>d.data());
+      $('pastCount').textContent=evs.length?`(${evs.length})`:'';
+      if(!evs.length){ $('pastList').innerHTML=`<div class="empty">no past hangouts yet.</div>`; return; }
+      $('pastList').innerHTML=evs.map(h=>`<div class="hcard" style="cursor:default;"><div class="spot-emoji">${h.emoji||'📍'}</div><div class="hc-body"><div class="hc-title">${esc(h.name)}</div><div class="hc-meta"><span>${h.date?esc(fmtDate(h.date))+' ':''}<span class="t">${fmtTime(h.time)}</span></span><span>${h.who&&h.who.length?h.who.length+' came: '+h.who.map(esc).join(', '):'by '+esc(h.hostName)}</span></div></div></div>`).join('');
+    }).catch(()=>{ $('pastList').innerHTML=`<div class="empty">couldn't load history.</div>`; });
+  }
+
+  let commentsAllowed=true;
+  function watchConfig(){
+    onSnapshot(doc(db,'config','app'), d=>{
+      const c=d.exists()?d.data():{};
+      commentsAllowed = c.commentsAllowed!==false;
+      $('setComments').classList.toggle('on', commentsAllowed);
+      const cin=$('commentIn'); if(cin){ cin.disabled=!commentsAllowed; cin.placeholder=commentsAllowed?'leave a comment':'comments are turned off'; }
+      $('commentSend').disabled=!commentsAllowed;
+    });
+  }
+
+  function openProfileView(userId, fallbackName){
+    viewingProfile=userId; viewingProfileName=fallbackName; showView('profile');
+    $('pvMessage').style.display = (userId!==ME.id) ? 'block' : 'none';
+    $('commentIn').disabled=!commentsAllowed; $('commentSend').disabled=!commentsAllowed;
+    $('commentIn').placeholder=commentsAllowed?'leave a comment':'comments are turned off';
+    $('commentList').innerHTML=`<div class="empty">loading…</div>`;
+    getDoc(doc(db,'users',userId)).then(s=>{
+      const u=s.exists()?s.data():{name:fallbackName};
+      viewingProfileName=u.name||fallbackName;
+      $('pvAvatar').innerHTML=avatarHTML(u,'de avatar').replace('class="de avatar"','class="avatar" style="width:62px;height:62px;border-radius:16px;font-size:22px;"');
+      $('pvName').textContent=u.name||fallbackName;
+      $('pvMeta').innerHTML=[u.hasCar?'🚗 car':'',u.hasLicense?'🪪 licensed':'', roleBadge(u)?u.role:''].filter(Boolean).join(' · ')||'crew member';
+    });
+    if(unsubComments) unsubComments();
+    unsubComments=onSnapshot(query(collection(db,'users',userId,'comments'),orderBy('t','desc'),limit(60)), snap=>{
+      const cs=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const wrap=$('commentList');
+      if(!commentsAllowed){ wrap.innerHTML=`<div class="empty" style="padding:18px;">comments are turned off by the owner.</div>`; return; }
+      if(!cs.length){ wrap.innerHTML=`<div class="empty" style="padding:18px;">no comments yet. be the first 👀</div>`; return; }
+      wrap.innerHTML=cs.map(c=>{
+        const canDel=isAdmin()||c.uid===ME.id;
+        return `<div class="att"><div class="ab"><div class="an" style="font-size:14px;">${esc(c.name)} <span class="am" style="display:inline;margin:0;">· ${ago(c.t)}</span></div><div style="font-size:14px;font-weight:600;margin-top:3px;">${esc(c.text)}</div></div>${canDel?`<button class="btn btn-leave btn-sm" data-cdel="${c.id}" style="flex:none;padding:6px 10px;">✕</button>`:''}</div>`;
+      }).join('');
+    });
+  }
+
+  function renderSpotGrid(){
+    $('spotGrid').classList.toggle('editing', spotEditMode);
+    $('spotGrid').innerHTML = SPOTS.map(s=>`<div class="spot-pick ${decSel===s.id?'sel':''}" data-spot="${s.id}"><span class="em">${s.emoji}</span><span>${esc(s.name)}</span></div>`).join('')
+      + (spotEditMode?'':`<div class="spot-pick spot-add" id="addSpotBtn"><span class="em">＋</span><span>new spot</span></div>`);
+  }
+  function openDeclare(){ decSel=null; spotEditMode=false; $('editSpotsBtn').textContent='✏️ edit spots'; const d=new Date(); $('decDate').value=d.toISOString().slice(0,10); $('decTime').value=roundedNow(); $('decDrive').classList.remove('on'); renderSpotGrid(); showView('declare'); }
+
+  /* ---- vices (bring-items) ---- */
+  function refreshViceRow(){
+    const row=$('viceRow'); row.classList.toggle('editing', viceEditMode);
+    getMyAtt().then(mine=>{
+      const on=(mine&&mine.vices)?mine.vices:{};
+      row.innerHTML = VICES.map(v=>`<div class="vice ${v.cls||''} ${on[v.label]?'on':''}" data-vice="${esc(v.label)}">${esc(v.label)}<span class="vdel" data-vdel="${esc(v.label)}">✕</span></div>`).join('')
+        + (viceEditMode?`<div class="vice" id="addViceBtn" style="color:var(--ink-faint);">＋</div>`:'');
+    });
+  }
+
+  function openHangout(id){
+    CURRENT=id;
+    if(unsubHangout) unsubHangout();
+    unsubHangout = onSnapshot(doc(db,'hangouts',id), d=>{
+      if(!d.exists()){ toast('this hangout ended'); leaveDetail(); showView('home'); return; }
+      const h=d.data(); $('detEmoji').textContent=h.emoji; $('detName').textContent=h.name; $('detDate').textContent=h.date?fmtDate(h.date)+' · ':''; $('detTime').textContent=fmtTime(h.time); $('detHost').textContent=h.hostName; $('v-detail').dataset.host=h.hostId; $('v-detail').dataset.spotid=h.spotId||'';
+      $('endBtn').style.display = (h.hostId===ME.id || isAdmin()) ? 'block':'none';
+      $('editHangBtn').style.display = (h.hostId===ME.id || isAdmin()) ? 'block':'none';
+      $('v-detail').dataset.hdate=h.date||''; $('v-detail').dataset.htime=h.time||'';
+    });
+    if(unsubAtt) unsubAtt();
+    unsubAtt = onSnapshot(collection(db,'hangouts',id,'attendees'), snap=>{
+      const atts=snap.docs.map(d=>({userId:d.id,...d.data()})).sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0));
+      const hostId=$('v-detail').dataset.host;
+      const mine=atts.find(a=>a.userId===ME.id); renderMyCard(mine);
+      renderRides(atts, mine);
+      $('detCount').textContent=atts.length?`(${atts.length})`:'';
+      const list=$('attList');
+      if(!atts.length){ list.innerHTML=`<div class="empty">no one's pulled up yet.</div>`; return; }
+      list.innerHTML=atts.map(a=>{
+        const isMe=a.userId===ME.id, isHost=a.userId===hostId;
+        const mini=[a.hasCar?'🚗 car':'', a.hasLicense?'🪪 licensed':''].filter(Boolean).join(' · ');
+        const vt=Object.keys(a.vices||{}).filter(k=>a.vices[k]).map(k=>{const v=VICES.find(x=>x.label===k);return `<span class="v-tag ${v?v.cls:''}">${esc(k)}</span>`;}).join('');
+        const br=(a.bringing&&a.bringing.length)?`<div class="bringing">bringing: <b>${a.bringing.map(esc).join(', ')}</b></div>`:'';
+        return `<div class="att">${avatarHTML(a,'av avatar')}<div class="ab"><div class="an">${esc(a.name)}${isMe?'<span class="badge b-you">you</span>':''}${isHost?'<span class="badge b-host">host</span>':''}${a.driver?'<span class="badge b-drive">🚗 driving</span>':''}${a.needsRide&&!a.rideWith?'<span class="badge b-ride">🙋 needs ride</span>':''}</div><div class="am">arriving <span class="arr">${fmtTime(a.arrive)||'—'}</span>${mini?` · <span class="mini">${mini}</span>`:''}</div>${vt?`<div class="v-tags">${vt}</div>`:''}${br}</div></div>`;
+      }).join('');
+    });
+    // chat
+    if(STORAGE_ENABLED){
+      if(unsubMedia) unsubMedia();
+      unsubMedia = onSnapshot(collection(db,'hangouts',id,'media'), snap=>{
+        const photos=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.t||0)-(a.t||0));
+        $('mediaGrid').innerHTML=photos.map(p=> p.type==='video'
+          ? `<div class="mthumb"><video src="${p.url}" muted playsinline preload="metadata"></video><div class="play">▶</div><a class="dl" href="${p.url}" target="_blank" rel="noopener">⤓</a></div>`
+          : `<div class="mthumb"><img src="${p.url}" alt=""><a class="dl" href="${p.url}" target="_blank" rel="noopener" download>⤓</a></div>`
+        ).join('');
+      });
+    }
+    refreshViceRow();
+    showView('detail');
+  }
+  function leaveDetail(){ [unsubAtt,unsubMedia,unsubHangout,unsubHchat].forEach(u=>u&&u()); unsubAtt=unsubMedia=unsubHangout=unsubHchat=null; CURRENT=null; }
+
+  function renderRides(atts, mine){
+    const box=$('ridesBox');
+    const need=atts.filter(a=>a.needsRide && !a.rideWith);
+    const assigned=atts.filter(a=>a.rideWith);
+    const iDrive=mine && mine.driver;
+    if(!need.length && !assigned.length){ box.innerHTML=`<div class="empty" style="padding:18px;">no ride requests yet.${(mine&&!mine.driver)?'<br>need one? flip "i need a ride" above.':''}</div>`; return; }
+    let html=need.map(a=>{
+      const isMe=a.userId===ME.id;
+      const right = (iDrive && !isMe) ? `<button class="btn btn-green btn-sm" data-grab="${a.userId}" data-rname="${esc(a.name)}">i got them</button>` : (isMe ? `<span class="ride-wait">waiting…</span>` : '');
+      return `<div class="ride-row"><span class="rl">🙋 <b>${esc(a.name)}</b> needs a ride</span>${right}</div>`;
+    }).join('');
+    html+=assigned.map(a=>`<div class="ride-row done"><span class="rl">✅ <b>${esc(a.name)}</b> riding with ${esc(a.rideWith)}</span></div>`).join('');
+    box.innerHTML=html;
+  }
+
+  function renderMyCard(mine){
+    if(!mine){ $('notJoined').style.display='block'; $('joinedBox').style.display='none'; return; }
+    $('notJoined').style.display='none'; $('joinedBox').style.display='block';
+    const drv=!!mine.driver;
+    $('myArrive').value=mine.arrive||'';
+    $('myDrive').classList.toggle('on',drv);
+    $('bringWrap').style.display=drv?'block':'none';
+    $('needRideRow').style.display=drv?'none':'flex';
+    $('myNeedRide').classList.toggle('on',!!mine.needsRide);
+    renderBringChips(mine.bringing||[]);
+    refreshViceRow();
+  }
+  function renderBringChips(arr){ $('bringChips').innerHTML=arr.map((n,i)=>`<span class="chip-d">${esc(n)} <b data-del="${i}">×</b></span>`).join(''); }
+
+  async function myAttRef(){ return doc(db,'hangouts',CURRENT,'attendees',ME.id); }
+  async function getMyAtt(){ if(!CURRENT) return null; const s=await getDoc(await myAttRef()); return s.exists()?s.data():null; }
+  async function saveMyAtt(patch){
+    const base={name:ME.name,pfp:ME.pfp||null,hasCar:!!ME.hasCar,hasLicense:!!ME.hasLicense,joinedAt:Date.now(),arrive:'',driver:false,needsRide:false,rideWith:null,bringing:[],vices:{},lat:null,lng:null};
+    const cur = await getMyAtt() || base;
+    const next={...cur, name:ME.name, pfp:ME.pfp||null, hasCar:!!ME.hasCar, hasLicense:!!ME.hasLicense, ...patch};
+    await setDoc(await myAttRef(), next); return next;
+  }
+
+  /* ---- votes ---- */
+  function listenVotes(){
+    if(unsubVotes) unsubVotes();
+    unsubVotes=onSnapshot(collection(db,'votes'), snap=>{
+      const now=Date.now();
+      snap.docs.forEach(async d=>{
+        const v={id:d.id,...d.data()};
+        if(v.deadline<=now && !v.resolved){
+          const yes=Object.values(v.ballots||{}).filter(x=>x==='yes').length;
+          const no=Object.values(v.ballots||{}).filter(x=>x==='no').length;
+          await updateDoc(doc(db,'votes',v.id),{resolved:true});
+          if(yes>no){
+            if(v.kind==='spot') await deleteDoc(doc(db,'spots',v.targetId)).catch(()=>{});
+            if(v.kind==='vice') await deleteDoc(doc(db,'vices',v.targetId)).catch(()=>{});
+            if(v.kind==='hangout') await deleteDoc(doc(db,'hangouts',v.targetId)).catch(()=>{});
+            await pushFeed('🗑️', `vote passed — "${v.targetName}" deleted (${yes}–${no})`);
+          } else {
+            await pushFeed('🛡️', `vote failed — "${v.targetName}" stays (${yes}–${no})`);
+          }
+        }
+      });
+      // show open votes as toast badge count could go here; we render in settings/feed via feed entries
+    });
+  }
+  async function startVote(kind, targetId, targetName){
+    if(!confirm(`Start a ${VOTE_HOURS}-hour vote to delete "${targetName}"? Everyone gets to vote.`)) return;
+    const existing=await getDocs(collection(db,'votes'));
+    if(existing.docs.some(d=>{const v=d.data();return v.kind===kind&&v.targetId===targetId&&!v.resolved;})){ toast('vote already running'); return; }
+    const id=uid();
+    await setDoc(doc(db,'votes',id),{kind,targetId,targetName,by:ME.name,deadline:Date.now()+VOTE_HOURS*3600000,ballots:{[ME.id]:'yes'},resolved:false});
+    await pushFeed('🗳️', `${ME.name} started a vote to delete "${targetName}" — ${VOTE_HOURS}h to vote in the bell`);
+    toast('vote started 🗳️');
+  }
+
+  function wireApp(){
+    $('goHome').onclick=()=>{ leaveDetail(); [unsubChatTab,unsubHchat,unsubCal,unsubComments,unsubMarket,unsubFb,unsubDmList,unsubDmThread].forEach(u=>u&&u()); unsubChatTab=unsubHchat=unsubCal=unsubComments=unsubMarket=unsubFb=unsubDmList=unsubDmThread=null; showView('home'); };
+    document.querySelectorAll('[data-home]').forEach(b=> b.onclick=()=>{ leaveDetail(); [unsubChatTab,unsubHchat,unsubCal,unsubComments,unsubMarket,unsubFb,unsubDmList,unsubDmThread].forEach(u=>u&&u()); unsubChatTab=unsubHchat=unsubCal=unsubComments=unsubMarket=unsubFb=unsubDmList=unsubDmThread=null; showView('home'); });
+    $('btnDeclare').onclick=openDeclare;
+    $('btnJoinList').onclick=()=>{ showView('home'); toast('tap a live hangout to join'); };
+    $('btnCrew').onclick=openFriends;
+    $('btnDMs').onclick=openDMs;
+    $('btnMarket').onclick=openMarket;
+    $('btnFeedback').onclick=openFeedback;
+    $('dmList').onclick=e=>{ const d=e.target.closest('[data-dm]'); if(d) openDM(d.dataset.dm, d.dataset.dmname); };
+    $('newDmBtn').onclick=()=>{ pickingDM=true; openFriends(); toast('tap who to message'); };
+    $('pvMessage').onclick=()=>{ if(viewingProfile && viewingProfile!==ME.id) openDM(viewingProfile, viewingProfileName); };
+    $('dmBack').onclick=openDMs;
+    $('dmSend').onclick=sendDM; $('dmIn').onkeydown=e=>{ if(e.key==='Enter') sendDM(); };
+    $('btnChat').onclick=openChat;
+    $('btnCal').onclick=openCal;
+    $('btnShare').onclick=async ()=>{
+      const url=location.href.split('#')[0];
+      try{ if(navigator.share){ await navigator.share({title:'Yasaki', text:'join our hangout app 🛹', url}); } else { await navigator.clipboard.writeText(url); toast('link copied 🔗'); } }
+      catch(e){ try{ await navigator.clipboard.writeText(url); toast('link copied 🔗'); }catch(_){ toast(url); } }
+    };
+    $('bellBtn').onclick=openFeed;
+    $('settingsBtn').onclick=()=>showView('settings');
+    $('homeList').onclick=async e=>{
+      const del=e.target.closest('[data-hdel]');
+      if(del){ e.stopPropagation(); if(!confirm(`Remove the "${del.dataset.hname}" hangout?`)) return; const hid=del.dataset.hdel;
+        await archiveHangout(hid);
+        try{ const atts=await getDocs(collection(db,'hangouts',hid,'attendees')); for(const a of atts.docs){ await deleteDoc(a.ref); } }catch(_){}
+        await deleteDoc(doc(db,'hangouts',hid)); await pushFeed('🗑️', `${ME.name} removed the ${del.dataset.hname} hangout`); toast('removed'); return; }
+      const c=e.target.closest('[data-open]'); if(c) openHangout(c.dataset.open);
+    };
+
+    // settings toggles
+    $('walkAllow').onclick=async ()=>{ localStorage.setItem('yasaki_notifwalk','1'); $('notifWalk').style.display='none'; await requestPush(false); };
+    $('walkSkip').onclick=()=>{ localStorage.setItem('yasaki_notifwalk','1'); $('notifWalk').style.display='none'; };
+    $('setDark').onclick=()=>{ prefs.dark=!prefs.dark; $('setDark').classList.toggle('on',prefs.dark); applyTheme(); savePrefs(); };
+    $('setNotif').onclick=()=>{ prefs.notif=!prefs.notif; $('setNotif').classList.toggle('on',prefs.notif); savePrefs(); if(!prefs.notif) $('bellDot').style.display='none'; };
+    $('setPush').onclick=()=>{ if(!prefs.push){ requestPush(false); } else { prefs.push=false; applyPrefUI(); savePrefs(); toast('phone buzz off'); } };
+    $('openAccount').onclick=openProfile;
+    $('openPast').onclick=openPast;
+    $('setComments').onclick=async ()=>{ const on=!$('setComments').classList.contains('on'); $('setComments').classList.toggle('on',on); await setDoc(doc(db,'config','app'),{commentsAllowed:on},{merge:true}); toast(on?'comments on':'comments off'); };
+
+    // spots
+    $('editSpotsBtn').onclick=()=>{ spotEditMode=!spotEditMode; $('editSpotsBtn').textContent=spotEditMode?'✓ done':'✏️ edit spots'; renderSpotGrid(); if(spotEditMode) toast('tap a spot to edit it'); };
+    $('spotGrid').onclick=e=>{
+      if(e.target.closest('#addSpotBtn')){ openSpotModal(null); return; }
+      const s=e.target.closest('[data-spot]'); if(!s) return;
+      const spot=SPOTS.find(x=>x.id===s.dataset.spot);
+      if(spotEditMode){ openSpotModal(spot); } else { decSel=s.dataset.spot; renderSpotGrid(); }
+    };
+    $('decDrive').onclick=()=>$('decDrive').classList.toggle('on');
+    $('decGo').onclick=async ()=>{
+      if(!decSel){ toast('pick a spot'); return; }
+      const spot=SPOTS.find(s=>s.id===decSel); const time=$('decTime').value;
+      if(!time){ toast('set a start time'); return; }
+      const id=uid(); const drive=$('decDrive').classList.contains('on'); const date=$('decDate').value||new Date().toISOString().slice(0,10);
+      await setDoc(doc(db,'hangouts',id),{name:spot.name,emoji:spot.emoji,spotId:spot.id,lat:spot.lat||null,lng:spot.lng||null,time,date,hostId:ME.id,hostName:ME.name,createdAt:Date.now()});
+      CURRENT=id; await saveMyAtt({arrive:time, driver:drive, needsRide:false});
+      await pushFeed('🔥', `${ME.name} declared a hangout at ${spot.name} (${fmtDate(date)} ${fmtTime(time)})`);
+      toast('declared 🔥'); openHangout(id);
+    };
+
+    $('joinNow').onclick=async ()=>{ await saveMyAtt({arrive:roundedNow()}); const h=$('detName').textContent; await pushFeed('🙌', `${ME.name} joined the hangout at ${h}`); toast('you pulled up ✓'); };
+    $('myArrive').onchange=async ()=>{ await saveMyAtt({arrive:$('myArrive').value}); toast('arrival updated'); };
+    $('myDrive').onclick=async ()=>{ const on=!$('myDrive').classList.contains('on'); $('myDrive').classList.toggle('on',on); $('bringWrap').style.display=on?'block':'none'; $('needRideRow').style.display=on?'none':'flex'; const patch={driver:on}; if(on) patch.needsRide=false; await saveMyAtt(patch); };
+    $('myNeedRide').onclick=async ()=>{ const on=!$('myNeedRide').classList.contains('on'); $('myNeedRide').classList.toggle('on',on); await saveMyAtt({needsRide:on}); if(on) await pushFeed('🙋', `${ME.name} needs a ride to ${$('detName').textContent}`); toast(on?'ride requested 🙋':'request cancelled'); };
+    $('leaveBtn').onclick=async ()=>{
+      if(!confirm('Leave this hangout?')) return;
+      const hid=CURRENT;
+      await deleteDoc(doc(db,'hangouts',hid,'attendees',ME.id));
+      try{ const rest=await getDocs(collection(db,'hangouts',hid,'attendees')); if(rest.empty){ await archiveHangout(hid); await deleteDoc(doc(db,'hangouts',hid)); await pushFeed('💨', `the ${$('detName').textContent} hangout ended`); } }catch(e){}
+      toast('you left'); leaveDetail(); showView('home');
+    };
+    $('endBtn').onclick=async ()=>{
+      if(!confirm('End this hangout for everyone? This deletes it.')) return;
+      const hid=CURRENT, nm=$('detName').textContent;
+      await archiveHangout(hid);
+      try{ const atts=await getDocs(collection(db,'hangouts',hid,'attendees')); for(const a of atts.docs){ await deleteDoc(a.ref); } }catch(e){}
+      await deleteDoc(doc(db,'hangouts',hid));
+      await pushFeed('🗑️', `${ME.name} ended the hangout at ${nm}`);
+      toast('hangout ended'); leaveDetail(); showView('home');
+    };
+    $('editHangBtn').onclick=()=>{ $('ehDate').value=$('v-detail').dataset.hdate||new Date().toISOString().slice(0,10); $('ehTime').value=$('v-detail').dataset.htime||roundedNow(); $('editHangModal').classList.add('open'); };
+    $('ehCancel').onclick=()=>$('editHangModal').classList.remove('open');
+    $('ehSave').onclick=async ()=>{ if(!CURRENT) return; await updateDoc(doc(db,'hangouts',CURRENT),{date:$('ehDate').value, time:$('ehTime').value}); $('editHangModal').classList.remove('open'); toast('hangout updated ✏️'); };
+    // marketplace
+    $('addListingBtn').onclick=()=>{ lsPendingPhoto=null; $('lsTitle').value=''; $('lsPrice').value=''; $('lsDesc').value=''; $('lsPhotoPreview').innerHTML=''; $('lsPhotoBtn').style.display=STORAGE_ENABLED?'block':'none'; $('listingModal').classList.add('open'); setTimeout(()=>$('lsTitle').focus(),100); };
+    $('lsCancel').onclick=()=>$('listingModal').classList.remove('open');
+    $('lsPhotoBtn').onclick=()=>$('lsFile').click();
+    $('lsFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; lsPendingPhoto=await resizeImage(f,1000,.75); $('lsPhotoPreview').innerHTML=`<img src="${lsPendingPhoto}" style="width:100%;border-radius:12px;">`; };
+    $('lsSave').onclick=async ()=>{
+      const title=$('lsTitle').value.trim(); if(!title){ toast('what are you selling?'); return; }
+      const price=$('lsPrice').value.trim()||'—';
+      const id=uid(); let photo=null;
+      if(lsPendingPhoto && STORAGE_ENABLED){ try{ const r=sRef(storage,`market/${id}.jpg`); await uploadBytes(r,dataURLToBlob(lsPendingPhoto)); photo=await getDownloadURL(r); }catch(_){} }
+      await setDoc(doc(db,'market',id),{title,price,desc:$('lsDesc').value.trim(),photo,by:ME.name,byId:ME.id,sold:false,t:Date.now()});
+      await pushFeed('🛒', `${ME.name} listed "${title}" for sale (${price})`);
+      $('listingModal').classList.remove('open'); toast('listed 🛒');
+    };
+    $('marketList').onclick=async e=>{
+      const sold=e.target.closest('[data-sold]'); const del=e.target.closest('[data-lsdel]');
+      if(sold){ await updateDoc(doc(db,'market',sold.dataset.sold),{sold:sold.dataset.s==='1'}); }
+      if(del){ if(!confirm('Delete this listing?')) return; await deleteDoc(doc(db,'market',del.dataset.lsdel)); toast('deleted'); }
+    };
+
+    // feedback
+    let fbPhone='';
+    $('addFbBtn').onclick=()=>{ fbKind='bug'; fbPhone=''; $('fbBug').classList.add('on'); $('fbIdea').classList.remove('on'); $('fbBugFields').style.display='block'; $('fbIdeaFields').style.display='none'; $('fbText').value=''; $('fbSteps').value=''; $('fbWhere').value=''; $('fbIdeaText').value=''; $('fbiPhone').classList.remove('on'); $('fbAndroid').classList.remove('on'); $('fbModal').classList.add('open'); };
+    $('fbBug').onclick=()=>{ fbKind='bug'; $('fbBug').classList.add('on'); $('fbIdea').classList.remove('on'); $('fbBugFields').style.display='block'; $('fbIdeaFields').style.display='none'; };
+    $('fbIdea').onclick=()=>{ fbKind='idea'; $('fbIdea').classList.add('on'); $('fbBug').classList.remove('on'); $('fbBugFields').style.display='none'; $('fbIdeaFields').style.display='block'; };
+    $('fbiPhone').onclick=()=>{ fbPhone='iPhone'; $('fbiPhone').classList.add('on'); $('fbAndroid').classList.remove('on'); };
+    $('fbAndroid').onclick=()=>{ fbPhone='Android'; $('fbAndroid').classList.add('on'); $('fbiPhone').classList.remove('on'); };
+    $('fbCancel').onclick=()=>$('fbModal').classList.remove('open');
+    $('fbSave').onclick=async ()=>{
+      const id=uid();
+      if(fbKind==='bug'){
+        const text=$('fbText').value.trim(); if(!text){ toast('what went wrong?'); return; }
+        await setDoc(doc(db,'feedback',id),{kind:'bug',text,steps:$('fbSteps').value.trim(),where:$('fbWhere').value.trim(),phone:fbPhone,by:ME.name,byId:ME.id,votes:{[ME.id]:true},done:false,t:Date.now()});
+        await pushFeed('🐛', `${ME.name} reported a bug: ${text.length>40?text.slice(0,40)+'…':text}`);
+      } else {
+        const text=$('fbIdeaText').value.trim(); if(!text){ toast('type your idea'); return; }
+        await setDoc(doc(db,'feedback',id),{kind:'idea',text,by:ME.name,byId:ME.id,votes:{[ME.id]:true},done:false,t:Date.now()});
+        await pushFeed('💡', `${ME.name} suggested: ${text.length>40?text.slice(0,40)+'…':text}`);
+      }
+      $('fbModal').classList.remove('open'); toast(fbKind==='bug'?'bug reported 🐛':'idea posted 💡');
+    };
+    $('fbList').onclick=async e=>{
+      const v=e.target.closest('[data-fbvote]'); const dn=e.target.closest('[data-fbdone]'); const del=e.target.closest('[data-fbdel]');
+      if(v){ const ref=doc(db,'feedback',v.dataset.fbvote); const s=await getDoc(ref); if(!s.exists())return; const votes={...(s.data().votes||{})}; if(votes[ME.id]) delete votes[ME.id]; else votes[ME.id]=true; await updateDoc(ref,{votes}); }
+      if(dn){ await updateDoc(doc(db,'feedback',dn.dataset.fbdone),{done:dn.dataset.d==='1'}); }
+      if(del){ if(!confirm('Delete this post?')) return; await deleteDoc(doc(db,'feedback',del.dataset.fbdel)); }
+    };
+
+    // calendar
+    $('addEventBtn').onclick=()=>{ editingEvent=null; $('evTitle').value=''; $('evWhere').value=''; $('evDate').value=new Date().toISOString().slice(0,10); $('evTime').value=roundedNow(); $('eventModal').querySelector('h3').textContent='add an event'; $('eventModal').classList.add('open'); setTimeout(()=>$('evTitle').focus(),100); };
+    $('evCancel').onclick=()=>$('eventModal').classList.remove('open');
+    $('evSave').onclick=async ()=>{
+      const title=$('evTitle').value.trim(); if(!title){ toast('name the event'); return; }
+      if(editingEvent){
+        await updateDoc(doc(db,'events',editingEvent),{title,date:$('evDate').value,time:$('evTime').value,where:$('evWhere').value.trim()});
+        $('eventModal').classList.remove('open'); toast('event updated ✏️'); editingEvent=null; openCal(); return;
+      }
+      const id=uid();
+      await setDoc(doc(db,'events',id),{title,date:$('evDate').value,time:$('evTime').value,where:$('evWhere').value.trim(),by:ME.name,byId:ME.id,createdAt:Date.now(),going:{}});
+      await pushFeed('📅', `${ME.name} added an event: ${title} (${fmtDate($('evDate').value)})`);
+      $('eventModal').classList.remove('open'); toast('event added 📅'); openCal();
+    };
+    $('calList').onclick=async e=>{
+      const g=e.target.closest('[data-going]'); const del=e.target.closest('[data-evdel]'); const ed=e.target.closest('[data-evedit]');
+      if(g){ const ref=doc(db,'events',g.dataset.going); const s=await getDoc(ref); if(!s.exists())return; const ev=s.data(); const going={...(ev.going||{})}; if(going[ME.id]) delete going[ME.id]; else going[ME.id]=ME.name; await updateDoc(ref,{going}); openCal(); }
+      if(del){ if(!confirm('Delete this event?')) return; await deleteDoc(doc(db,'events',del.dataset.evdel)); toast('event deleted'); openCal(); }
+      if(ed){ const s=await getDoc(doc(db,'events',ed.dataset.evedit)); if(!s.exists())return; const ev=s.data(); editingEvent=ed.dataset.evedit; $('evTitle').value=ev.title||''; $('evWhere').value=ev.where||''; $('evDate').value=ev.date||''; $('evTime').value=ev.time||''; $('eventModal').querySelector('h3').textContent='edit event'; $('eventModal').classList.add('open'); }
+    };
+
+    // profile comments
+    $('profBack').onclick=openFriends;
+    $('commentSend').onclick=postComment; $('commentIn').onkeydown=e=>{ if(e.key==='Enter') postComment(); };
+    async function postComment(){ if(!commentsAllowed){ toast('comments are off'); return; } const t=$('commentIn').value.trim(); if(!t||!viewingProfile) return; $('commentIn').value=''; await addDoc(collection(db,'users',viewingProfile,'comments'),{uid:ME.id,name:ME.name,text:t,t:Date.now()}); if(viewingProfile!==ME.id) await pushFeed('💬', `${ME.name} commented on ${viewingProfileName}'s profile`); }
+    $('commentList').onclick=async e=>{ const d=e.target.closest('[data-cdel]'); if(!d) return; if(!confirm('Remove this comment?')) return; await deleteDoc(doc(db,'users',viewingProfile,'comments',d.dataset.cdel)); };
+
+
+    $('pendingList').onclick=async e=>{
+      const ap=e.target.closest('[data-approve]'), dn=e.target.closest('[data-deny]');
+      if(ap){ await updateDoc(doc(db,'users',ap.dataset.approve),{status:'active'}); await pushFeed('✅','a new member was approved'); toast('approved'); openFriends(); }
+      if(dn){ if(!confirm('Deny and remove this person?')) return; await deleteDoc(doc(db,'users',dn.dataset.deny)); toast('denied'); openFriends(); }
+    };
+    $('crewList').onclick=e=>{
+      const m=e.target.closest('[data-manage]');
+      if(m){ e.stopPropagation(); roleTarget={id:m.dataset.manage, name:m.dataset.mname, role:m.dataset.mrole};
+        $('roleName').textContent=roleTarget.name; $('roleAdmin').classList.toggle('on', roleTarget.role==='admin'); $('roleModal').classList.add('open'); return; }
+      const p=e.target.closest('[data-profile]'); if(p){ if(pickingDM){ pickingDM=false; if(p.dataset.profile!==ME.id) openDM(p.dataset.profile, p.dataset.pname); else toast('pick someone else'); } else openProfileView(p.dataset.profile, p.dataset.pname); }
+    };
+    $('roleCancel').onclick=()=>$('roleModal').classList.remove('open');
+    $('roleAdmin').onclick=()=>$('roleAdmin').classList.toggle('on');
+    $('roleSave').onclick=async ()=>{
+      if(!roleTarget) return;
+      const newRole=$('roleAdmin').classList.contains('on')?'admin':'member';
+      await updateDoc(doc(db,'users',roleTarget.id),{role:newRole});
+      $('roleModal').classList.remove('open'); toast('role saved'); openFriends();
+    };
+    $('roleKick').onclick=async ()=>{
+      if(!roleTarget) return; if(!confirm(`Kick ${roleTarget.name} from the group?`)) return;
+      await deleteDoc(doc(db,'users',roleTarget.id));
+      await pushFeed('👢', `${roleTarget.name} was removed from the group`);
+      $('roleModal').classList.remove('open'); toast('kicked'); openFriends();
+    };
+    $('roleBan').onclick=async ()=>{
+      if(!roleTarget) return; if(!confirm(`Ban ${roleTarget.name}? They'll be locked out.`)) return;
+      await updateDoc(doc(db,'users',roleTarget.id),{status:'banned'});
+      await pushFeed('🚫', `${roleTarget.name} was banned`);
+      $('roleModal').classList.remove('open'); toast('banned'); openFriends();
+    };
+    $('ridesBox').onclick=async e=>{
+      const b=e.target.closest('[data-grab]'); if(!b) return;
+      b.disabled=true; const rid=b.dataset.grab, rname=b.dataset.rname;
+      try{
+        await updateDoc(doc(db,'hangouts',CURRENT,'attendees',rid),{needsRide:false, rideWith:ME.name});
+        const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; if(!arr.includes(rname)) arr.push(rname); await saveMyAtt({bringing:arr});
+        await pushFeed('🚗', `${ME.name} is giving ${rname} a ride`);
+        toast('you got them 🚗');
+      }catch(err){ toast('try again'); b.disabled=false; }
+    };
+    // chat
+    $('chatSend').onclick=sendChat; $('chatIn').onkeydown=e=>{ if(e.key==='Enter') sendChat(); };
+    async function sendChat(){ const t=$('chatIn').value.trim(); if(!t) return; $('chatIn').value=''; await addDoc(collection(db,'chat'),{uid:ME.id,name:ME.name,text:t,t:Date.now()}); await pushFeed('💬', `${ME.name}: ${t.length>40?t.slice(0,40)+'…':t}`); }
+    $('hchatSend').onclick=sendHchat; $('hchatIn').onkeydown=e=>{ if(e.key==='Enter') sendHchat(); };
+    async function sendHchat(){ const t=$('hchatIn').value.trim(); if(!t||!CURRENT) return; $('hchatIn').value=''; await addDoc(collection(db,'hangouts',CURRENT,'chat'),{uid:ME.id,name:ME.name,text:t,t:Date.now()}); }
+    $('chatTabCrew').onclick=()=>setChatPane('crew');
+    $('chatTabHang').onclick=()=>setChatPane('hang');
+    // swipe gesture on the chat pane
+    let cx=0,cy=0,csw=false;
+    const pane=$('chatPane');
+    pane.addEventListener('touchstart',e=>{ cx=e.touches[0].clientX; cy=e.touches[0].clientY; csw=true; },{passive:true});
+    pane.addEventListener('touchend',e=>{ if(!csw) return; csw=false; const dx=e.changedTouches[0].clientX-cx, dy=e.changedTouches[0].clientY-cy; if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)){ if(dx<0) setChatPane('hang'); else setChatPane('crew'); } });
+
+    $('bringAdd').onclick=async ()=>{ const n=$('bringIn').value.trim(); if(!n) return; const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; arr.push(n); $('bringIn').value=''; await saveMyAtt({bringing:arr}); renderBringChips(arr); };
+    $('bringIn').onkeydown=e=>{ if(e.key==='Enter') $('bringAdd').click(); };
+    $('bringChips').onclick=async e=>{ const d=e.target.closest('[data-del]'); if(!d) return; const cur=await getMyAtt(); const arr=(cur&&cur.bringing)?cur.bringing.slice():[]; arr.splice(+d.dataset.del,1); await saveMyAtt({bringing:arr}); renderBringChips(arr); };
+
+    // vices
+    $('editViceBtn').onclick=()=>{ viceEditMode=!viceEditMode; $('editViceBtn').textContent=viceEditMode?'✓ done':'＋ / edit'; refreshViceRow(); };
+    $('viceRow').onclick=async e=>{
+      const del=e.target.closest('[data-vdel]');
+      if(del){ e.stopPropagation(); const label=del.dataset.vdel;
+        if(isAdmin()){ if(!confirm(`Delete the "${label}" item now?`)) return; await deleteDoc(doc(db,'vices',label)); await pushFeed('🗑️', `${ME.name} deleted the bring-item "${label}"`); toast('item deleted'); }
+        else { startVote('vice', label, label); }
+        return; }
+      if(e.target.closest('#addViceBtn')){ $('viceNew').value=''; $('viceModal').classList.add('open'); setTimeout(()=>$('viceNew').focus(),100); return; }
+      const v=e.target.closest('[data-vice]'); if(!v||viceEditMode) return;
+      const label=v.dataset.vice; const mine=await getMyAtt()||{}; const vs={...(mine.vices||{})}; vs[label]=!vs[label]; v.classList.toggle('on',vs[label]); await saveMyAtt({vices:vs});
+    };
+    $('viceCancel').onclick=()=>$('viceModal').classList.remove('open');
+    $('viceSave').onclick=async ()=>{ const label=$('viceNew').value.trim().toLowerCase(); if(!label){ toast('type a label'); return; } if(VICES.some(v=>v.label===label)){ toast('already exists'); $('viceModal').classList.remove('open'); return; } await setDoc(doc(db,'vices',label),{label,cls:'',order:Date.now()}); $('viceModal').classList.remove('open'); toast('item added'); };
+
+    // media
+    $('addMedia').onclick=()=>$('mediaFile').click();
+    $('mediaFile').onchange=async e=>{
+      const f=e.target.files[0]; if(!f) return; const isVid=f.type.startsWith('video');
+      if(isVid && f.size>120*1024*1024){ toast('video too big'); e.target.value=''; return; }
+      $('addMedia').innerHTML='<span class="spinner"></span> uploading…';
+      try{ const id=uid(); let blob,ext,type; if(isVid){ blob=f; ext=(f.name.split('.').pop()||'mp4'); type='video'; } else { blob=dataURLToBlob(await resizeImage(f,1400,.78)); ext='jpg'; type='image'; }
+        const r=sRef(storage, `media/${CURRENT}/${id}.${ext}`); await uploadBytes(r, blob); const url=await getDownloadURL(r);
+        await setDoc(doc(db,'hangouts',CURRENT,'media',id), {url, type, by:ME.id, t:Date.now()}); toast('added');
+      }catch(err){ toast('upload failed'); }
+      $('addMedia').textContent='+ add a photo or video'; e.target.value='';
+    };
+
+    // profile
+    $('meChip').onclick=openProfile;
+    $('editPfp').onclick=()=>$('editFile').click();
+    $('editFile').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; const d=await resizeImage(f,220,.72); pendingPfp=d; $('editPfp').style.background='transparent'; $('editPfp').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`; };
+    $('editName').oninput=e=>{ e.target.value=e.target.value.replace(/[^\p{L} '\-]/gu,''); };
+    ['editCar','editLic'].forEach(id=>toggle($(id)));
+    $('profCancel').onclick=()=>$('profModal').classList.remove('open');
+    $('profSave').onclick=async ()=>{
+      const chk=cleanName($('editName').value); if(!chk.ok){ toast(chk.msg); return; }
+      ME.name=chk.name; if(pendingPfp) ME.pfp=pendingPfp;
+      ME.hasCar=$('editCar').classList.contains('on'); ME.hasLicense=$('editLic').classList.contains('on');
+      localStorage.setItem('yasaki_me',JSON.stringify(ME)); await setDoc(doc(db,'users',ME.id), profileDoc());
+      renderMeChip(); $('profModal').classList.remove('open'); toast('account updated');
+    };
+
+    // spot modal
+    $('spotUseLoc').onclick=()=>{ if(!navigator.geolocation){ toast('no GPS'); return; } $('spotUseLoc').innerHTML='<span class="spinner"></span> locating…'; navigator.geolocation.getCurrentPosition(pos=>{ pendingSpotLoc={lat:pos.coords.latitude,lng:pos.coords.longitude}; $('spotLocLabel').textContent='📍 location captured'; $('spotUseLoc').textContent='📍 update location'; }, ()=>{ toast('location blocked'); $('spotUseLoc').textContent='📍 use my current location'; }); };
+    $('spotCancel').onclick=()=>$('spotModal').classList.remove('open');
+    $('spotVoteDelete').onclick=async ()=>{ if(!editingSpot) return; const s=SPOTS.find(x=>x.id===editingSpot); $('spotModal').classList.remove('open'); startVote('spot', editingSpot, s?s.name:'spot'); };
+    $('spotAdminDelete').onclick=async ()=>{ if(!editingSpot||!isAdmin()) return; const s=SPOTS.find(x=>x.id===editingSpot); if(!confirm(`Delete "${s?s.name:'this spot'}" now?`)) return; await deleteDoc(doc(db,'spots',editingSpot)); await pushFeed('🗑️', `${ME.name} deleted the spot "${s?s.name:''}"`); $('spotModal').classList.remove('open'); toast('spot deleted'); };
+    $('spotSave').onclick=async ()=>{
+      const emoji=$('spotEmoji').value.trim()||'📍'; const name=$('spotName').value.trim(); if(!name){ toast('name the spot'); return; }
+      const data={emoji,name}; if(pendingSpotLoc){ data.lat=pendingSpotLoc.lat; data.lng=pendingSpotLoc.lng; }
+      if(editingSpot){ await updateDoc(doc(db,'spots',editingSpot),data); toast('spot updated ✏️'); }
+      else { const id=uid(); await setDoc(doc(db,'spots',id),data); decSel=id; toast('spot added 📍'); }
+      $('spotModal').classList.remove('open'); $('spotEmoji').value=''; $('spotName').value='';
+    };
+
+    listenVotes();
+  }
+
+  function openProfile(){
+    pendingPfp=null;
+    $('editName').value=ME.name;
+    $('editPfp').style.background=ME.pfp?'transparent':colorFor(ME.name);
+    $('editPfp').innerHTML=ME.pfp?`<img src="${ME.pfp}" style="width:100%;height:100%;object-fit:cover;border-radius:23px;">`:initials(ME.name);
+    $('editCar').classList.toggle('on',!!ME.hasCar); $('editLic').classList.toggle('on',!!ME.hasLicense);
+    $('profModal').classList.add('open');
+  }
+  function openSpotModal(spot){
+    editingSpot = spot ? spot.id : null; pendingSpotLoc=null;
+    $('spotModalTitle').textContent = spot ? 'edit spot' : 'add a new spot';
+    $('spotEmoji').value = spot ? spot.emoji : '';
+    $('spotName').value = spot ? spot.name : '';
+    $('spotLocLabel').textContent = (spot&&spot.lat)?'📍 has a saved location':'';
+    $('spotUseLoc').textContent = (spot&&spot.lat)?'📍 update location':'📍 use my current location';
+    $('spotVoteDelete').style.display = spot ? 'block' : 'none';
+    $('spotAdminDelete').style.display = (spot && isAdmin()) ? 'block' : 'none';
+    $('spotModal').classList.add('open'); setTimeout(()=>$('spotName').focus(),100);
+  }
+}
+</script>
